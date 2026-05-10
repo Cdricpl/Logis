@@ -6145,17 +6145,18 @@ body.modal-open { overflow: hidden; touch-action: none; }
     var host = location.hostname;
     var isPreview = host.indexOf('lovableproject.com') !== -1
                  || host.indexOf('id-preview--') !== -1
-                 || host.indexOf('lovable.app') !== -1 && host.indexOf('--') !== -1 && host.indexOf('-dev') !== -1
-                 || host.indexOf('github.io') !== -1; // SW skip on GitHub Pages (no /api/logis route)
+                 || host.indexOf('lovable.app') !== -1 && host.indexOf('--') !== -1 && host.indexOf('-dev') !== -1;
     if (inIframe || isPreview) {
-      // Désactive en preview/GitHub Pages : nettoie tout SW existant
+      // Désactive en preview : nettoie tout SW existant
       navigator.serviceWorker.getRegistrations().then(function(regs) {
         regs.forEach(function(r) { r.unregister(); });
       }).catch(function(){});
       return;
     }
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('./sw.js').catch(function(err) {
+      // sw-gh.js sur GitHub Pages (sans /api/logis), sw.js sur Cloudflare Workers
+      var swFile = host.indexOf('github.io') !== -1 ? './sw-gh.js' : './sw.js';
+      navigator.serviceWorker.register(swFile).catch(function(err) {
         console.warn('SW registration failed', err);
       });
     });
