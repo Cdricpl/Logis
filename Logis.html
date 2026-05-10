@@ -2608,11 +2608,12 @@ body.modal-open { overflow: hidden; touch-action: none; }
   // ---------- IndexedDB ----------
   function openDb() {
     return new Promise((resolve, reject) => {
-      const req = indexedDB.open(DB_NAME, 2);
+      const req = indexedDB.open(DB_NAME, 3);
       req.onupgradeneeded = e => {
         const d = e.target.result;
         if (!d.objectStoreNames.contains(DB_STORE)) d.createObjectStore(DB_STORE);
         if (!d.objectStoreNames.contains(DB_FILES_STORE)) d.createObjectStore(DB_FILES_STORE);
+        if (!d.objectStoreNames.contains('tasks')) d.createObjectStore('tasks');
       };
       req.onsuccess = e => resolve(e.target.result);
       req.onerror = e => reject(e.target.error);
@@ -3006,8 +3007,10 @@ body.modal-open { overflow: hidden; touch-action: none; }
   }
 
   function save() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ tasks: tasks.map(stripInternals), nextId })); }
+    const _d = { tasks: tasks.map(stripInternals), nextId };
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(_d)); }
     catch(e) { if (e.name === 'QuotaExceededError') alert('Stockage saturé. Exporte et nettoie.'); }
+    dbPut('data', _d, 'tasks').catch(() => {});
   }
   function stripInternals(t) { const c = {...t}; delete c._migratePhoto; return c; }
 
@@ -4729,7 +4732,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '</select>' +
       '</div>' +
       '<div style="font-size:12px;color:var(--text-3);margin-bottom:6px;padding:10px 12px;background:var(--surface-2);border-radius:var(--r-sm);line-height:1.5;">' +
-        '💡 Les rappels s\'affichent quand tu ouvres l\'app à l\'heure configurée.' +
+        '💡 Les rappels arrivent même quand l\'app est fermée, via une notification push.' +
       '</div>' +
       '<div class="btn-row">' +
         '<button class="btn btn-sm" data-m="close">Annuler</button>' +
@@ -4767,6 +4770,28 @@ body.modal-open { overflow: hidden; touch-action: none; }
       if (enabled) {
         toast('Rappels activés à ' + String(hour).padStart(2,'0') + 'h00 ✓');
         scheduleNotifCheck();
+        // Abonnement push pour notifications en arrière-plan
+        (async () => {
+          try {
+            const resp = await fetch('/api/push/vapid-key').catch(() => null);
+            if (!resp || !resp.ok) return;
+            const { publicKey } = await resp.json();
+            if (!publicKey || !('serviceWorker' in navigator)) return;
+            const reg = await navigator.serviceWorker.ready;
+            let sub = await reg.pushManager.getSubscription();
+            if (!sub) {
+              const pad = s => s + '='.repeat((4 - s.length % 4) % 4);
+              const raw = atob(pad(publicKey).replace(/-/g, '+').replace(/_/g, '/'));
+              const appKey = Uint8Array.from(raw, c => c.charCodeAt(0));
+              sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey });
+            }
+            await fetch('/api/push/subscribe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ subscription: sub.toJSON(), hour, utcOffsetMinutes: -new Date().getTimezoneOffset() })
+            }).catch(() => {});
+          } catch(e) { /* push non critique */ }
+        })();
         // Notification test pour confirmer que ça marche vraiment
         setTimeout(async () => {
           const { body, count } = getDueNotifMessages();
@@ -4787,6 +4812,23 @@ body.modal-open { overflow: hidden; touch-action: none; }
           clearTimeout(notifCheckTimerId);
           notifCheckTimerId = null;
         }
+        // Désabonnement push
+        (async () => {
+          try {
+            const reg2 = await navigator.serviceWorker.getRegistration();
+            if (reg2) {
+              const sub2 = await reg2.pushManager.getSubscription();
+              if (sub2) {
+                await fetch('/api/push/unsubscribe', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ endpoint: sub2.endpoint })
+                }).catch(() => {});
+                await sub2.unsubscribe().catch(() => {});
+              }
+            }
+          } catch(e) {}
+        })();
         toast('Rappels désactivés');
       }
     });
