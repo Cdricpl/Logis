@@ -79,6 +79,71 @@ self.addEventListener("fetch", (event) => {
   );
 });
 
+// ---------- Push Notifications ----------
+
+async function getTasksFromIDB() {
+  return new Promise((resolve) => {
+    const req = indexedDB.open("logis_db", 3);
+    req.onsuccess = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains("tasks")) {
+        resolve(null);
+        return;
+      }
+      const tx = db.transaction("tasks", "readonly");
+      const get = tx.objectStore("tasks").get("data");
+      get.onsuccess = () => resolve(get.result || null);
+      get.onerror = () => resolve(null);
+    };
+    req.onerror = () => resolve(null);
+  });
+}
+
+function computePushBody(data) {
+  if (!data?.tasks) return "Consulte tes tâches du jour.";
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const overdue = data.tasks.filter((t) => !t.archived && t.due && t.due < todayStr);
+  const upcoming = data.tasks.filter((t) => !t.archived && t.due && t.due === todayStr);
+  if (overdue.length === 0 && upcoming.length === 0) return null;
+  let body = "";
+  if (overdue.length)
+    body += `${overdue.length} tâche${overdue.length > 1 ? "s" : ""} en retard. `;
+  if (upcoming.length)
+    body += `${upcoming.length} prévue${upcoming.length > 1 ? "s" : ""} aujourd'hui.`;
+  return body.trim();
+}
+
+self.addEventListener("push", (event) => {
+  event.waitUntil(
+    (async () => {
+      const data = await getTasksFromIDB();
+      const body = computePushBody(data);
+      if (body === null) return; // tout est à jour
+      await self.registration.showNotification("Logis · Ta maison", {
+        body,
+        icon: "/icon-192.png",
+        badge: "/icon-192.png",
+        tag: "logis-daily",
+      });
+    })(),
+  );
+});
+
+self.addEventListener("pushsubscriptionchange", (event) => {
+  event.waitUntil(
+    (async () => {
+      const sub = await self.registration.pushManager.subscribe(
+        event.oldSubscription.options,
+      );
+      await fetch("/api/push/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ subscription: sub.toJSON(), resubscribe: true }),
+      });
+    })(),
+  );
+});
+
 // Clic sur une notification : ouvre/active l'app
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();

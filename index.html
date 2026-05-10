@@ -23,8 +23,8 @@
 <meta name="theme-color" content="#f5f1e8">
 <meta name="description" content="Carnet d'entretien intelligent — gère les tâches récurrentes de ta maison">
 
-<!-- Manifeste PWA (chemin absolu : l'app est servie depuis /api/logis) -->
-<link rel="manifest" href="/manifest.webmanifest">
+<!-- Manifeste PWA (chemins relatifs pour GitHub Pages /Logis/) -->
+<link rel="manifest" href="manifest.webmanifest">
 
 <!-- iOS / Safari : standalone + barre de statut -->
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -34,9 +34,9 @@
 <meta name="application-name" content="Logis">
 
 <!-- Icônes (PNG haute qualité) -->
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 
 <title>Logis — Carnet d'entretien intelligent</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6145,16 +6145,17 @@ body.modal-open { overflow: hidden; touch-action: none; }
     var host = location.hostname;
     var isPreview = host.indexOf('lovableproject.com') !== -1
                  || host.indexOf('id-preview--') !== -1
-                 || host.indexOf('lovable.app') !== -1 && host.indexOf('--') !== -1 && host.indexOf('-dev') !== -1;
+                 || host.indexOf('lovable.app') !== -1 && host.indexOf('--') !== -1 && host.indexOf('-dev') !== -1
+                 || host.indexOf('github.io') !== -1; // SW skip on GitHub Pages (no /api/logis route)
     if (inIframe || isPreview) {
-      // Désactive en preview : nettoie tout SW existant
+      // Désactive en preview/GitHub Pages : nettoie tout SW existant
       navigator.serviceWorker.getRegistrations().then(function(regs) {
         regs.forEach(function(r) { r.unregister(); });
       }).catch(function(){});
       return;
     }
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/sw.js').catch(function(err) {
+      navigator.serviceWorker.register('./sw.js').catch(function(err) {
         console.warn('SW registration failed', err);
       });
     });
