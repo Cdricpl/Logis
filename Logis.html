@@ -1,21 +1,5 @@
 <!DOCTYPE html>
-<!-- Logis v23 — base v22.
-     v22 (27 avril 2026) : croix modales, fix dernier passage, fix compressImage,
-       fix scheduleNotifCheck sans API Notification, unification entry-delete.
-     v23 (29 avril 2026) — Design/UX & fiabilité :
-       - A11y : style :focus-visible global cohérent (anneau accent) pour la
-         navigation clavier sur tous les contrôles interactifs.
-       - UX : touche Échap ferme la modale courante (en plus du clic extérieur
-         et de la croix).
-       - UX : scroll du body verrouillé quand une modale est ouverte — fini
-         le double-scroll qui faisait sauter la position sur mobile.
-       - Fix compressImage : taille réellement recalculée à CHAQUE palier
-         (le palier 500-1000 Ko ne mettait pas sizeKb à jour) + palier ultime
-         à qualité 0.40 si l'image dépasse encore 1500 Ko après le palier 0.50.
-       - Fix notifications : la fenêtre de déclenchement disait "30 min" en
-         commentaire mais testait l'égalité stricte de l'heure ; on déclenche
-         maintenant dès qu'on atteint l'heure cible (la garde sessionStorage
-         empêche déjà tout doublon dans la journée). -->
+<!-- Logis v23 -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -1565,8 +1549,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   font-variant-numeric: tabular-nums;
 }
 
-/* v20.1 : section Argent économisé retirée (CSS .dash-savings / .saving-card / .savings-note supprimé). */
-
 /* Anomalies détectées */
 .dash-anomalies { display: flex; flex-direction: column; gap: 8px; }
 .anomaly-row {
@@ -1596,10 +1578,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   margin: 0;
   line-height: 1.45;
 }
-
-/* v20.1 : section Suggestions personnalisées retirée (CSS .dash-sugg / .sugg-row supprimé).
-   v20.1 : Audit maison retiré (carte + modal supprimés).
-   v20.1 : messages prédictifs / cartes du prévisionnel retirés (fonctionnalité supprimée). */
 
 /* Motivation inline (sur tâche en vue détaillée) */
 .motivation-banner {
@@ -1694,7 +1672,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   font-weight: 600;
 }
 
-/* v20.1 : modal audit retiré, et tout le CSS du prévisionnel a été retiré (vue + onglet supprimés). */
 
 /* FAB */
 .fab {
@@ -2769,8 +2746,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;vertical-align:middle;"></span>';
   }
 
-  // v20.1 : taskSavedAmount / taskPotentialSaving retirés avec la section Argent économisé.
-
   // Score d'entretien de la maison (0-100).
   // Pondéré par l'importance : une tâche critique en retard pèse plus lourd.
   function computeMaintenanceScore() {
@@ -2801,8 +2776,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     return { score, onTime: onTimeCount, late: lateCount, upcoming: upcomingCount, critical: criticalLate, total: active.length };
   }
 
-  // v20.1 : MONTHS_FR et analyseForecast retirés (utilisés uniquement par le prévisionnel supprimé).
-
   // Comparaison année courante vs année précédente (coûts réels)
   function compareYears() {
     const y = new Date().getFullYear();
@@ -2831,21 +2804,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
       }
     });
     return anomalies;
-  }
-
-  // Détecte tâches quasi-dupliquées (même catégorie + titres proches)
-  function detectDuplicates() {
-    const active = tasks.filter(t => !t.archived);
-    const dups = [];
-    for (let i = 0; i < active.length; i++) {
-      for (let j = i + 1; j < active.length; j++) {
-        if (active[i].cat !== active[j].cat) continue;
-        const a = active[i].title.toLowerCase().replace(/[^a-zà-ÿ0-9 ]/gi, '').trim();
-        const b = active[j].title.toLowerCase().replace(/[^a-zà-ÿ0-9 ]/gi, '').trim();
-        if (a === b) dups.push([active[i], active[j]]);
-      }
-    }
-    return dups;
   }
 
   // Message motivant contextualisé à une tâche (selon échéance + importance)
@@ -2887,13 +2845,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     return pool[Math.floor(Math.random() * pool.length)];
   }
 
-  // v20.1 : suggestTasksForEquipment retiré (section Suggestions personnalisées supprimée).
-  // v20.1 : predictiveMessages retiré (prévisionnel supprimé).
-  // v20.1 : taskSavedAmount / taskPotentialSaving plus utilisés (Argent économisé supprimé).
-
-  // ==================================================================
-  // Fin du module v18
-  // ==================================================================
 
   // ---------- Load/save with migration ----------
   function load() {
