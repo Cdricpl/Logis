@@ -1600,6 +1600,19 @@ body.modal-open { overflow: hidden; touch-action: none; }
   line-height: 1.45;
 }
 
+/* Activité mensuelle — graphique SVG */
+.dash-activity-chart { overflow: hidden; margin: 0; }
+.dash-activity-chart svg { display: block; overflow: visible; }
+
+/* Horizon à venir */
+.dash-horizon { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.dash-horizon-item { padding: 12px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); text-align: center; box-shadow: var(--shadow-1); }
+.dash-horizon-item .h-val { font-family: var(--font-display); font-size: 22px; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 2px; color: var(--text); font-variation-settings: "opsz" 72; }
+.dash-horizon-item .h-lbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin: 0; }
+.dash-horizon-item.h-danger .h-val { color: var(--danger); }
+.dash-horizon-item.h-warn .h-val { color: var(--warn); }
+.dash-horizon-item.h-ok .h-val { color: var(--ok); }
+
 /* Motivation inline (sur tâche en vue détaillée) */
 .motivation-banner {
   margin: 12px 0;
@@ -3496,6 +3509,49 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<div class="dash-kpi"><p class="k-lbl">Passages ' + currentYear + '</p><p class="k-val">' + countYear + '</p></div>' +
         '<div class="dash-kpi"><p class="k-lbl">Archivées</p><p class="k-val">' + archivedCount + '</p></div>' +
       '</div></div>';
+
+    // Activité mensuelle — graphique SVG (12 derniers mois)
+    const MLBL = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+    const months12 = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
+      months12.push({ key: iso(d).slice(0, 7), label: MLBL[d.getMonth()] });
+    }
+    const passagesByMonth = {};
+    active.forEach(t => t.history.forEach(h => { const ym = h.date.slice(0, 7); passagesByMonth[ym] = (passagesByMonth[ym] || 0) + 1; }));
+    const monthCounts = months12.map(m => passagesByMonth[m.key] || 0);
+    const actMax = Math.max(...monthCounts, 1);
+    const todayYM = iso(today()).slice(0, 7);
+    if (monthCounts.some(c => c > 0)) {
+      const slotW = 23, barW = 14, barPad = (slotW - barW) / 2;
+      const svgW = 12 * slotW, svgH = 80, barAreaH = 54;
+      let svgContent = '';
+      months12.forEach((m, i) => {
+        const count = monthCounts[i];
+        const barH = count > 0 ? Math.max(4, Math.round((count / actMax) * barAreaH)) : 2;
+        const x = i * slotW + barPad, y = barAreaH - barH + 2;
+        const isCurrent = m.key === todayYM;
+        svgContent += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + barH + '" rx="3" fill="var(--accent)" fill-opacity="' + (isCurrent ? '1' : '0.3') + '"/>';
+        if (count > 0) svgContent += '<text x="' + (i * slotW + slotW / 2) + '" y="' + (y - 3) + '" text-anchor="middle" font-size="9" fill="var(--text-2)">' + count + '</text>';
+        if (i % 3 === 0 || i === 11) svgContent += '<text x="' + (i * slotW + slotW / 2) + '" y="' + (svgH - 2) + '" text-anchor="middle" font-size="8" fill="var(--text-3)">' + m.label + '</text>';
+      });
+      html += '<div class="dash-section"><h3>Activité <em>mensuelle</em></h3><div class="dash-activity-chart"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%;height:' + svgH + 'px;">' + svgContent + '</svg></div></div>';
+    }
+
+    // Horizon à venir
+    const td = iso(today());
+    const d7 = new Date(today()); d7.setDate(d7.getDate() + 7); const in7 = iso(d7);
+    const d30 = new Date(today()); d30.setDate(d30.getDate() + 30); const in30 = iso(d30);
+    const nRetard = active.filter(t => t.due && t.due < td).length;
+    const nSemaine = active.filter(t => t.due && t.due >= td && t.due <= in7).length;
+    const nMois = active.filter(t => t.due && t.due > in7 && t.due <= in30).length;
+    const nSuite = active.filter(t => t.due && t.due > in30).length;
+    html += '<div class="dash-section"><h3>Horizon <em>à venir</em></h3><div class="dash-horizon">';
+    html += '<div class="dash-horizon-item' + (nRetard > 0 ? ' h-danger' : '') + '"><p class="h-val">' + nRetard + '</p><p class="h-lbl">En retard</p></div>';
+    html += '<div class="dash-horizon-item' + (nSemaine > 0 ? ' h-warn' : '') + '"><p class="h-val">' + nSemaine + '</p><p class="h-lbl">Cette sem.</p></div>';
+    html += '<div class="dash-horizon-item' + (nMois > 0 ? ' h-ok' : '') + '"><p class="h-val">' + nMois + '</p><p class="h-lbl">Ce mois</p></div>';
+    html += '<div class="dash-horizon-item"><p class="h-val">' + nSuite + '</p><p class="h-lbl">Plus tard</p></div>';
+    html += '</div></div>';
 
     c.innerHTML = html;
 
