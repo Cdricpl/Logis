@@ -2265,8 +2265,9 @@ body.modal-open { overflow: hidden; touch-action: none; }
 
     <!-- v19 : stats d'abord (priorité aux informations clés) -->
     <div class="stats">
-      <div class="stat primary"><p class="val" id="stat-month">0</p><p class="lbl">Sous 30 j</p></div>
       <div class="stat late"><p class="val" id="stat-late">0</p><p class="lbl">En retard</p></div>
+      <div class="stat week"><p class="val" id="stat-week">0</p><p class="lbl">Cette sem.</p></div>
+      <div class="stat primary"><p class="val" id="stat-month">0</p><p class="lbl">Sous 30 j</p></div>
       <div class="stat"><p class="val" id="stat-total">0</p><p class="lbl">Au total</p></div>
     </div>
 
@@ -2680,8 +2681,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
     const day = String(d.getDate()).padStart(2, '0');
     return y + '-' + m + '-' + day;
   }
-  function daysUntil(s) { const d = new Date(s); d.setHours(0,0,0,0); return Math.round((d - today()) / DAY); }
-  function fmtDate(s) { if (!s) return '—'; return new Date(s).toLocaleDateString('fr-BE', { day: '2-digit', month: 'short', year: 'numeric' }); }
+  function daysUntil(s) { const [y,m,dd] = s.split('-').map(Number); return Math.round((new Date(y,m-1,dd) - today()) / DAY); }
+  function fmtDate(s) { if (!s) return '—'; const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d).toLocaleDateString('fr-BE', { day: '2-digit', month: 'short', year: 'numeric' }); }
   function fmtEur(n) { if (n == null || n === '') return ''; return new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR' }).format(n); }
   function uid(prefix) { return (prefix || 't') + '_' + (nextId++) + '_' + Math.random().toString(36).slice(2,6); }
   function debounce(fn, delay) {
@@ -2692,7 +2693,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     };
   }
   function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function escapeAttr(s) { return escapeHtml(s); }
   function fmtReminder(days) {
     if (days === 0) return "Le jour même";
     if (days === 1) return "1 jour avant";
@@ -2756,28 +2756,12 @@ body.modal-open { overflow: hidden; touch-action: none; }
   // ==================================================================
 
   // Coût attendu d'une tâche : priorité au coût estimé manuel, sinon moyenne historique
-  function taskExpectedCost(t) {
-    if (t.estimatedCost != null) return t.estimatedCost;
-    return taskAvgCost(t);
-  }
-
   // Coût médian d'une tâche (plus robuste aux outliers que la moyenne)
   function taskMedianCost(t) {
     const costs = t.history.filter(e => e.cost != null).map(e => e.cost).sort((a,b) => a - b);
     if (costs.length === 0) return null;
     const mid = Math.floor(costs.length / 2);
     return costs.length % 2 === 0 ? (costs[mid - 1] + costs[mid]) / 2 : costs[mid];
-  }
-
-  // Facteur de risque associé à l'importance : coefficient multiplicateur
-  // d'une panne évitée (utilisé pour estimer les économies "cachées").
-  //   Critique (3) : une négligence peut coûter 4x le coût d'entretien (dégâts, remplacement).
-  //   Moyenne  (2) : une négligence coûte typiquement 2x.
-  //   Basse    (1) : facteur 1.2 (peu d'économies cachées, juste confort).
-  function riskMultiplier(importance) {
-    if (importance >= 3) return 4;
-    if (importance >= 2) return 2;
-    return 1.2;
   }
 
   // Label textuel de l'importance
@@ -3056,6 +3040,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       else if (dd <= 30) month++;
     });
     document.getElementById('stat-late').textContent = late;
+    document.getElementById('stat-week').textContent = week;
     document.getElementById('stat-month').textContent = month;
     document.getElementById('stat-total').textContent = active.length;
 
@@ -3337,14 +3322,13 @@ body.modal-open { overflow: hidden; touch-action: none; }
   }
 
   // Format court pour échéance : "12 mai" / "3 juin 2027"
-  function fmtDateShort(iso) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    if (isNaN(d)) return iso;
-    const now = new Date();
+  function fmtDateShort(s) {
+    if (!s) return '—';
+    const [y,mo,dd] = s.split('-').map(Number);
+    if (!dd) return s;
     const months = ['jan','fév','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
-    const sameYear = d.getFullYear() === now.getFullYear();
-    return d.getDate() + ' ' + months[d.getMonth()] + (sameYear ? '' : ' ' + d.getFullYear());
+    const sameYear = y === new Date().getFullYear();
+    return dd + ' ' + months[mo-1] + (sameYear ? '' : ' ' + y);
   }
 
   // ---------- Render Dashboard (v18) ----------
@@ -3569,7 +3553,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       return;
     }
     let html = '<p style="font-size: 13px; color: var(--text-2); margin: 0 0 12px;">Tâches archivées : leur historique reste consultable mais elles n\'apparaissent plus dans la liste principale ni dans les rappels.</p>';
-    html += '<div class="list">';
+    html += '<div class="list"></div>';
     c.innerHTML = html;
     const list = c.querySelector('.list') || c;
     archived.forEach(t => list.appendChild(taskRow(t)));
@@ -3652,24 +3636,39 @@ body.modal-open { overflow: hidden; touch-action: none; }
   }
 
   // ---------- Quick done ----------
+  function openQuickDoneModal(id) {
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    const todayStr = iso(today());
+    openModal(
+      '<h2>Marquer comme fait</h2>' +
+      '<p style="font-size:13px;color:var(--text-2);margin:0 0 16px;"><strong>' + escapeHtml(t.title) + '</strong></p>' +
+      '<div class="form-row"><label for="qdone-date">Date d\'exécution</label>' +
+      '<input type="date" id="qdone-date" value="' + todayStr + '" max="' + todayStr + '"></div>' +
+      '<div class="btn-row">' +
+        '<button class="btn btn-sm" data-m="close">Annuler</button>' +
+        '<button class="btn btn-sm btn-primary" data-m="quick-done-confirm" data-id="' + id + '">Confirmer ✓</button>' +
+      '</div>'
+    );
+  }
+
   function quickDoneConfirm(id) {
     const t = tasks.find(x => x.id === id);
     if (!t) return;
-    const dateObj = today(); dateObj.setHours(0,0,0,0);
-    const dateStr = iso(dateObj);
+    const dateInput = document.getElementById('qdone-date');
+    const dateStr = (dateInput && dateInput.value) ? dateInput.value : iso(today());
+    const [y,m,dd] = dateStr.split('-').map(Number);
+    const due = new Date(y,m-1,dd);
+    due.setDate(due.getDate() + t.freq);
     t.history.unshift({
-      id: uid('h'), date: iso(dateObj), note: '', cost: null,
+      id: uid('h'), date: dateStr, note: '', cost: null,
       photoKeys: [], photoLabels: [],
       fileKeys: [], fileLabels: [], fileNames: [], fileMimes: []
     });
     t.history.sort((a,b) => b.date.localeCompare(a.date));
-    const mostRecent = t.history[0];
-    t.last = mostRecent.date;
-    const due = new Date(mostRecent.date); due.setHours(0,0,0,0);
-    due.setDate(due.getDate() + t.freq);
+    t.last = t.history[0].date;
     t.due = iso(due);
     save(); render(); closeModal();
-    // v18 : message valorisant (motivationAfterDone) plutôt qu'un simple accusé de réception
     toast(motivationAfterDone(t));
   }
 
@@ -3828,10 +3827,10 @@ body.modal-open { overflow: hidden; touch-action: none; }
     c.innerHTML = pendingPhotos.map((p, i) =>
       '<div class="ph-thumb">' +
         '<div class="wrap">' +
-          '<img src="' + escapeAttr(p.dataUrl) + '" alt="Photo">' +
+          '<img src="' + escapeHtml(p.dataUrl) + '" alt="Photo">' +
           '<button type="button" class="rm" data-ph-del="' + i + '">×</button>' +
         '</div>' +
-        '<input type="text" list="photo-label-presets" data-ph-label="' + i + '" value="' + escapeAttr(p.label || '') + '" placeholder="Légende">' +
+        '<input type="text" list="photo-label-presets" data-ph-label="' + i + '" value="' + escapeHtml(p.label || '') + '" placeholder="Légende">' +
       '</div>'
     ).join('');
     c.querySelectorAll('[data-ph-del]').forEach(b => {
@@ -3854,7 +3853,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<span class="file-ico">' + fileIcon(f.mime, f.name) + '</span>' +
         '<div class="file-meta">' +
           '<p class="file-name">' + escapeHtml(f.name) + '</p>' +
-          '<input type="text" list="file-label-presets" data-f-label="' + i + '" value="' + escapeAttr(f.label || '') + '" placeholder="Légende (facture, contrat...)">' +
+          '<input type="text" list="file-label-presets" data-f-label="' + i + '" value="' + escapeHtml(f.label || '') + '" placeholder="Légende (facture, contrat...)">' +
         '</div>' +
         '<button type="button" class="btn btn-sm btn-danger" data-f-del="' + i + '">×</button>' +
       '</div>'
@@ -3998,7 +3997,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       '<p style="font-size:13px;color:var(--text-2);margin:0 0 16px;">Change la date du dernier passage. La prochaine échéance se recalcule automatiquement. Ton historique reste intact.</p>' +
       '<div class="form-row">' +
         '<label for="edit-last-date">Date du dernier passage</label>' +
-        '<input type="date" id="edit-last-date" value="' + escapeAttr(currentDate) + '" max="' + escapeAttr(iso(today())) + '">' +
+        '<input type="date" id="edit-last-date" value="' + escapeHtml(currentDate) + '" max="' + escapeHtml(iso(today())) + '">' +
       '</div>' +
       '<div class="btn-row" style="margin-top:12px;">' +
         '<button class="btn btn-sm" data-m="close">Annuler</button>' +
@@ -4047,8 +4046,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
       contactHtml = '<h3>Contact habituel</h3><div class="contact-block">';
       if (c.name) contactHtml += '<p class="name">' + escapeHtml(c.name) + '</p>';
       contactHtml += '<table>';
-      if (c.phone) contactHtml += '<tr><td>Téléphone</td><td><a href="tel:' + escapeAttr(c.phone) + '">' + escapeHtml(c.phone) + '</a></td></tr>';
-      if (c.email) contactHtml += '<tr><td>Email</td><td><a href="mailto:' + escapeAttr(c.email) + '">' + escapeHtml(c.email) + '</a></td></tr>';
+      if (c.phone) contactHtml += '<tr><td>Téléphone</td><td><a href="tel:' + escapeHtml(c.phone) + '">' + escapeHtml(c.phone) + '</a></td></tr>';
+      if (c.email) contactHtml += '<tr><td>Email</td><td><a href="mailto:' + escapeHtml(c.email) + '">' + escapeHtml(c.email) + '</a></td></tr>';
       if (c.address) {
         const mapUrl = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(c.address);
         contactHtml += '<tr><td>Adresse</td><td><a href="' + mapUrl + '" target="_blank" rel="noopener">' + escapeHtml(c.address) + '</a></td></tr>';
@@ -4101,7 +4100,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         html += '<div class="entry-photos">';
         photoImgs.forEach(p => {
           html += '<div class="photo-chip">' +
-            '<img class="entry-photo" src="' + escapeAttr(p.dataUrl) + '" data-view-photo="' + escapeAttr(p.key) + '" data-photo-caption="' + escapeAttr(p.label) + '" alt="Photo">' +
+            '<img class="entry-photo" src="' + escapeHtml(p.dataUrl) + '" data-view-photo="' + escapeHtml(p.key) + '" data-photo-caption="' + escapeHtml(p.label) + '" alt="Photo">' +
             (p.label ? '<p class="photo-label">' + escapeHtml(p.label) + '</p>' : '') +
           '</div>';
         });
@@ -4114,7 +4113,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
           const name = (h.fileNames && h.fileNames[i]) || 'fichier';
           const mime = (h.fileMimes && h.fileMimes[i]) || '';
           const label = (h.fileLabels && h.fileLabels[i]) || '';
-          html += '<button type="button" class="file-chip" data-view-file="' + escapeAttr(fileKeys[i]) + '" data-file-name="' + escapeAttr(name) + '">' +
+          html += '<button type="button" class="file-chip" data-view-file="' + escapeHtml(fileKeys[i]) + '" data-file-name="' + escapeHtml(name) + '">' +
             '<span class="file-ico">' + fileIcon(mime, name) + '</span>' +
             '<span class="file-txt">' +
               '<span class="file-name">' + escapeHtml(name) + '</span>' +
@@ -4292,7 +4291,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     openModal(
       '<h2>' + (t ? 'Modifier la fiche' : 'Nouvelle tâche') + '</h2>' +
       '<h3>Informations principales</h3>' +
-      '<div class="form-row"><label>Titre *</label><input id="f-title" type="text" value="' + escapeAttr(title) + '"></div>' +
+      '<div class="form-row"><label>Titre *</label><input id="f-title" type="text" value="' + escapeHtml(title) + '"></div>' +
       '<div class="form-row"><label>Description</label><textarea id="f-desc">' + escapeHtml(desc) + '</textarea></div>' +
       '<div class="form-row-2">' +
         '<div><label>Catégorie</label><select id="f-cat">' + catOpts + '</select></div>' +
@@ -4304,17 +4303,17 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '</div>' +
       '</div>' +
       '<div class="form-row"><label>Importance <span style="font-weight:400;color:var(--text-3);font-size:11px;">· risque si non réalisée</span></label>' + impHtml + '<input type="hidden" id="f-importance" value="' + importance + '"></div>' +
-      '<div class="form-row"><label>Coût estimé <span style="font-weight:400;color:var(--text-3);font-size:11px;">· optionnel, € par passage</span></label><input id="f-estcost" type="number" min="0" step="0.01" value="' + escapeAttr(estimatedCost) + '" placeholder="Laisse vide pour utiliser la moyenne historique"></div>' +
+      '<div class="form-row"><label>Coût estimé <span style="font-weight:400;color:var(--text-3);font-size:11px;">· optionnel, € par passage</span></label><input id="f-estcost" type="number" min="0" step="0.01" value="' + escapeHtml(estimatedCost) + '" placeholder="Laisse vide pour utiliser la moyenne historique"></div>' +
       (t ? '' : '<div class="form-row"><label>Date de référence (dernier passage connu)</label><input id="f-last" type="date" value="' + last + '"></div>') +
       '<h3>Rappels d\'anticipation</h3>' +
       '<div id="reminders-container">' + remindersFormHtml(reminders) + '</div>' +
       '<h3>Contact habituel</h3>' +
-      '<div class="form-row"><label>Nom</label><input id="f-cname" type="text" value="' + escapeAttr(contact.name) + '"></div>' +
+      '<div class="form-row"><label>Nom</label><input id="f-cname" type="text" value="' + escapeHtml(contact.name) + '"></div>' +
       '<div class="form-row-2">' +
-        '<div><label>Téléphone</label><input id="f-cphone" type="tel" value="' + escapeAttr(contact.phone) + '"></div>' +
-        '<div><label>Email</label><input id="f-cemail" type="email" value="' + escapeAttr(contact.email) + '"></div>' +
+        '<div><label>Téléphone</label><input id="f-cphone" type="tel" value="' + escapeHtml(contact.phone) + '"></div>' +
+        '<div><label>Email</label><input id="f-cemail" type="email" value="' + escapeHtml(contact.email) + '"></div>' +
       '</div>' +
-      '<div class="form-row"><label>Adresse</label><input id="f-caddress" type="text" value="' + escapeAttr(contact.address) + '"></div>' +
+      '<div class="form-row"><label>Adresse</label><input id="f-caddress" type="text" value="' + escapeHtml(contact.address) + '"></div>' +
       '<h3>Notes de la fiche</h3>' +
       '<div class="form-row"><textarea id="f-notes" style="min-height: 70px;" placeholder="N° contrat, code d\'accès, modèle, consignes générales...">' + escapeHtml(notes) + '</textarea></div>' +
       '<div class="btn-row">' +
@@ -4499,7 +4498,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     html += '<h2>Fiche</h2><table>';
     html += '<tr><td>Catégorie</td><td>' + catLabels[t.cat] + '</td></tr>';
     if (t.desc) html += '<tr><td>Description</td><td>' + escapeHtml(t.desc) + '</td></tr>';
-    html += '<tr><td>Fréquence</td><td>tous les ' + t.freq + ' jours</td></tr>';
+    html += '<tr><td>Fréquence</td><td>tous les ' + fmtFreq(t.freq) + '</td></tr>';
     html += '<tr><td>Dernier passage</td><td>' + fmtDate(t.last) + '</td></tr>';
     html += '<tr><td>Prochaine échéance</td><td>' + fmtDate(t.due) + '</td></tr>';
     const c = t.contact || {};
@@ -4544,7 +4543,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
             const du = photoResults[i];
             if (du) {
               const label = (h.photoLabels && h.photoLabels[i]) || '';
-              html += '<div><img src="' + escapeAttr(du) + '" alt="Photo">' + (label ? '<p class="photo-cap">' + escapeHtml(label) + '</p>' : '') + '</div>';
+              html += '<div><img src="' + escapeHtml(du) + '" alt="Photo">' + (label ? '<p class="photo-cap">' + escapeHtml(label) + '</p>' : '') + '</div>';
             }
           }
           html += '</div>';
@@ -5329,7 +5328,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     if (btn) {
       e.stopPropagation();
       const id = btn.dataset.id, act = btn.dataset.act;
-      if (act === 'quick-done') quickDoneConfirm(id);
+      if (act === 'quick-done') openQuickDoneModal(id);
       else if (act === 'view') viewTask(id);
       return;
     }
