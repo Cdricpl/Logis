@@ -101,7 +101,7 @@ async function getTasksFromIDB() {
 
 function computePushBody(data) {
   if (!data?.tasks) return "Consulte tes tâches du jour.";
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const _n = new Date(); const todayStr = _n.getFullYear() + '-' + String(_n.getMonth()+1).padStart(2,'0') + '-' + String(_n.getDate()).padStart(2,'0');
   const overdue = data.tasks.filter((t) => !t.archived && t.due && t.due < todayStr);
   const upcoming = data.tasks.filter((t) => !t.archived && t.due && t.due === todayStr);
   if (overdue.length === 0 && upcoming.length === 0) return null;
