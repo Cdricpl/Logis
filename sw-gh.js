@@ -1,7 +1,7 @@
 // Service worker Logis — GitHub Pages (cdricpl.github.io/Logis/)
 // Version allégée : pas de /api/logis, chemins relatifs, notifications via SW.
 // v26.3 : nom de cache incrémenté pour purger les anciennes icônes.
-const CACHE = "logis-gh-v2";
+const CACHE = "logis-gh-v3";
 const PRECACHE = ["./", "./index.html", "./manifest.webmanifest",
   "./icon-32.png", "./icon-192.png", "./icon-512.png",
   "./icon-maskable-192.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
