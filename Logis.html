@@ -2277,6 +2277,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   let currentSort = 'due';
   let currentSearch = '';
   let currentTab = 'tasks';
+  let calState = null, calSelected = null;
   let nextId = 1;
   let db = null;
   let pendingPhotos = [];
@@ -2883,7 +2884,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
               (data.passages > 0 ? ' · ' + data.passages + ' passage' + (data.passages > 1 ? 's' : '') : '') +
             '</p>' +
           '</div>' +
-          (hasHistory ? '<button class="btn btn-sm" onclick="exportVehicleCsv(' + JSON.stringify(name === '—' ? null : name) + ')">Export CSV</button>' : '') +
+          (hasHistory ? '<button class="btn btn-sm" data-csv-vehicle="' + escapeHtml(name) + '">Export CSV</button>' : '') +
         '</div>';
       });
       html += '</div></div>';
@@ -2927,11 +2928,11 @@ body.modal-open { overflow: hidden; touch-action: none; }
   // ---------- Render Calendar ----------
   function renderCalendar() {
     const el = document.getElementById('view-calendar');
-    if (!window._calState) {
+    if (!calState) {
       const n = today();
-      window._calState = { year: n.getFullYear(), month: n.getMonth() };
+      calState = { year: n.getFullYear(), month: n.getMonth() };
     }
-    const { year, month } = window._calState;
+    const { year, month } = calState;
     const byDate = {};
     tasks.filter(t => !t.archived && t.due).forEach(t => {
       (byDate[t.due] = byDate[t.due] || []).push(t);
@@ -2946,9 +2947,9 @@ body.modal-open { overflow: hidden; touch-action: none; }
 
     let html = '<div class="cal-wrap">';
     html += '<div class="cal-header">' +
-      '<button class="icon-btn" onclick="window._calNav(-1)" aria-label="Mois précédent">' + prevSvg + '</button>' +
+      '<button class="icon-btn" data-cal-nav="-1" aria-label="Mois précédent">' + prevSvg + '</button>' +
       '<span class="cal-title">' + MONTHS[month] + ' ' + year + '</span>' +
-      '<button class="icon-btn" onclick="window._calNav(1)" aria-label="Mois suivant">' + nextSvg + '</button>' +
+      '<button class="icon-btn" data-cal-nav="1" aria-label="Mois suivant">' + nextSvg + '</button>' +
     '</div>';
     html += '<div class="cal-grid">';
     ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].forEach(d => { html += '<div class="cal-dow">' + d + '</div>'; });
@@ -2965,8 +2966,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
       if (dateStr < todayStr) cls += ' cal-day--past';
       if (dateStr < todayStr && dayTasks.length) cls += ' cal-day--has-tasks';
       else if (dayTasks.length) cls += ' cal-day--has-tasks';
-      if (window._calSelected === dateStr) cls += ' cal-day--selected';
-      html += '<div class="' + cls + '" onclick="window._calDayClick(\'' + dateStr + '\')">';
+      if (calSelected === dateStr) cls += ' cal-day--selected';
+      html += '<div class="' + cls + '" data-cal-day="' + dateStr + '">';
       html += '<span class="cal-day-num">' + d + '</span>';
       dayTasks.slice(0, 2).forEach(t => {
         html += '<div class="cal-task-chip" style="background:var(--cat-' + t.cat + '-bg);color:var(--cat-' + t.cat + ')">' + escapeHtml(t.title.slice(0, 14)) + '</div>';
@@ -2976,21 +2977,20 @@ body.modal-open { overflow: hidden; touch-action: none; }
     }
     html += '</div>';
 
-    if (!monthHasTasks && !window._calSelected) {
+    if (!monthHasTasks && !calSelected) {
       html += '<div class="cal-no-tasks">' +
         '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' +
         'Aucune tâche prévue ce mois' +
       '</div>';
     }
 
-    if (window._calSelected) {
-      const selTasks = byDate[window._calSelected] || [];
+    if (calSelected) {
+      const selTasks = byDate[calSelected] || [];
       html += '<div class="cal-detail">' +
-        '<p class="cal-detail-title">' + fmtDate(window._calSelected) + '</p>';
+        '<p class="cal-detail-title">' + fmtDate(calSelected) + '</p>';
       if (selTasks.length) {
         selTasks.forEach(t => {
-          const stateInfo = taskState(t);
-          html += '<div class="cal-detail-row" onclick="viewTask(\'' + t.id + '\')">';
+          html += '<div class="cal-detail-row" data-cal-task="' + escapeHtml(t.id) + '">';
           html += '<span class="cal-detail-dot" style="background:var(--cat-' + t.cat + ')"></span>';
           html += '<span style="flex:1;font-weight:500;">' + escapeHtml(t.title) + '</span>';
           html += '<span style="font-size:12px;color:var(--text-3);">' + catLabels[t.cat] + '</span>';
@@ -3006,19 +3006,39 @@ body.modal-open { overflow: hidden; touch-action: none; }
     el.innerHTML = html;
   }
 
-  window._calNav = function(dir) {
-    let { year, month } = window._calState;
+  function calNav(dir) {
+    let { year, month } = calState;
     month += dir;
     if (month < 0) { month = 11; year--; }
     if (month > 11) { month = 0; year++; }
-    window._calState = { year, month };
-    window._calSelected = null;
+    calState = { year, month };
+    calSelected = null;
     renderCalendar();
-  };
-  window._calDayClick = function(dateStr) {
-    window._calSelected = window._calSelected === dateStr ? null : dateStr;
+  }
+  function calDayClick(dateStr) {
+    calSelected = calSelected === dateStr ? null : dateStr;
     renderCalendar();
-  };
+  }
+
+  // v26.1 : délégation d'événements. Les onclick inline ne peuvent atteindre que
+  // le scope global, alors que tout le code vit dans une IIFE — d'où l'ancien
+  // détour par window, et le silence de « viewTask » qui, lui, n'y était pas.
+  document.getElementById('view-calendar').addEventListener('click', e => {
+    const nav = e.target.closest('[data-cal-nav]');
+    if (nav) { calNav(Number(nav.dataset.calNav)); return; }
+    const taskRowEl = e.target.closest('[data-cal-task]');
+    if (taskRowEl) { viewTask(taskRowEl.dataset.calTask); return; }
+    const day = e.target.closest('[data-cal-day]');
+    if (day) calDayClick(day.dataset.calDay);
+  });
+
+  // Export CSV par véhicule, depuis le tableau de bord.
+  document.getElementById('dashboard-content').addEventListener('click', e => {
+    const btn = e.target.closest('[data-csv-vehicle]');
+    if (!btn) return;
+    const name = btn.dataset.csvVehicle;
+    exportVehicleCsv(name === '\u2014' ? null : name);
+  });
 
   // ---------- Render everything ----------
   function render() {
@@ -4347,7 +4367,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
     const a = document.createElement('a'); a.href = url;
     const safeName = vehicleName ? vehicleName.replace(/[^a-z0-9]/gi, '_').slice(0,30) : 'sans_vehicule';
     a.download = 'frais_vehicule_' + safeName + '_' + iso(today()) + '.csv';
-    a.click(); URL.revokeObjectURL(url);
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
     toast('CSV téléchargé ✓');
   }
 
@@ -4357,7 +4378,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = 'logis_' + slugifyHouseName(loadProfile().houseName) + '_' + iso(today()) + '.json';
-    a.click(); URL.revokeObjectURL(url);
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
     const nPhotos = Object.keys(payload.photos || {}).length;
     const nFiles = Object.keys(payload.files || {}).length;
     toast('Export (' + nPhotos + ' photos, ' + nFiles + ' fichiers)');
