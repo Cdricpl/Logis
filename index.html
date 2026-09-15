@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Logis v24 -->
+<!-- Logis v25 -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -23,6 +23,22 @@
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
 
 <title>Logis — Carnet d'entretien intelligent</title>
+
+<!-- v25 : thème appliqué avant le premier rendu pour éviter le flash de couleurs.
+     Trois modes : 'light' (défaut), 'dark', 'auto' (suit le système). -->
+<script>
+(function () {
+  var mode = 'light';
+  try { mode = localStorage.getItem('logis_theme') || 'light'; } catch (e) {}
+  var resolved = mode === 'auto'
+    ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    : (mode === 'dark' ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', resolved);
+  var meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', resolved === 'dark' ? '#1c1814' : '#f5f1e8');
+})();
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -116,68 +132,66 @@
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1c1814;
-    --bg-2: #231e19;
-    --surface: #2a241e;
-    --surface-2: #322b24;
-    --surface-3: #3b332b;
-    --border: #3e3730;
-    --border-strong: #5a5048;
-    --text: #ece6dd;
-    --text-2: #b0a89c;
-    --text-3: #827a6e;
+:root[data-theme="dark"] {
+  --bg: #1c1814;
+  --bg-2: #231e19;
+  --surface: #2a241e;
+  --surface-2: #322b24;
+  --surface-3: #3b332b;
+  --border: #3e3730;
+  --border-strong: #5a5048;
+  --text: #ece6dd;
+  --text-2: #b0a89c;
+  --text-3: #827a6e;
 
-    --accent: #e88254;
-    --accent-2: #d56836;
-    --accent-soft: #4a2a1a;
-    --accent-wash: #3a1f12;
+  --accent: #e88254;
+  --accent-2: #d56836;
+  --accent-soft: #4a2a1a;
+  --accent-wash: #3a1f12;
 
-    --danger: #e87878;
-    --danger-bg: #3a1f1f;
-    --danger-border: #5a2e2e;
-    --warn: #e9b860;
-    --warn-bg: #3a2c14;
-    --warn-border: #5a4420;
-    --info: #7db8ea;
-    --info-bg: #162e48;
-    --info-border: #244668;
-    --ok: #a8d073;
-    --ok-bg: #1e3010;
-    --ok-border: #324e1c;
-    --purple: #b8a4e9;
-    --purple-bg: #2b224a;
-    --purple-border: #43356a;
+  --danger: #e87878;
+  --danger-bg: #3a1f1f;
+  --danger-border: #5a2e2e;
+  --warn: #e9b860;
+  --warn-bg: #3a2c14;
+  --warn-border: #5a4420;
+  --info: #7db8ea;
+  --info-bg: #162e48;
+  --info-border: #244668;
+  --ok: #a8d073;
+  --ok-bg: #1e3010;
+  --ok-border: #324e1c;
+  --purple: #b8a4e9;
+  --purple-bg: #2b224a;
+  --purple-border: #43356a;
 
-    --cat-chauffage: #ef8558;
-    --cat-chauffage-bg: #402416;
-    --cat-solaire: #eec168;
-    --cat-solaire-bg: #3d2e13;
-    --cat-boiler: #5bb3cf;
-    --cat-boiler-bg: #133039;
-    --cat-securite: #e77676;
-    --cat-securite-bg: #3b1e1e;
-    --cat-plomberie: #6ba8db;
-    --cat-plomberie-bg: #142a3e;
-    --cat-electricite: #e0a74a;
-    --cat-electricite-bg: #3a2a10;
-    --cat-vehicule: #8799b5;
-    --cat-vehicule-bg: #1f2732;
-    --cat-exterieur: #92be5c;
-    --cat-exterieur-bg: #1f3014;
-    --cat-electromenager: #b68fcc;
-    --cat-electromenager-bg: #2e1e3a;
-    --cat-numerique: #5fb0b0;
-    --cat-numerique-bg: #102a2a;
-    --cat-admin: #a89f93;
-    --cat-admin-bg: #2a2622;
+  --cat-chauffage: #ef8558;
+  --cat-chauffage-bg: #402416;
+  --cat-solaire: #eec168;
+  --cat-solaire-bg: #3d2e13;
+  --cat-boiler: #5bb3cf;
+  --cat-boiler-bg: #133039;
+  --cat-securite: #e77676;
+  --cat-securite-bg: #3b1e1e;
+  --cat-plomberie: #6ba8db;
+  --cat-plomberie-bg: #142a3e;
+  --cat-electricite: #e0a74a;
+  --cat-electricite-bg: #3a2a10;
+  --cat-vehicule: #8799b5;
+  --cat-vehicule-bg: #1f2732;
+  --cat-exterieur: #92be5c;
+  --cat-exterieur-bg: #1f3014;
+  --cat-electromenager: #b68fcc;
+  --cat-electromenager-bg: #2e1e3a;
+  --cat-numerique: #5fb0b0;
+  --cat-numerique-bg: #102a2a;
+  --cat-admin: #a89f93;
+  --cat-admin-bg: #2a2622;
 
-    --shadow-1: 0 1px 2px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.3);
-    --shadow-2: 0 2px 8px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.3);
-    --shadow-3: 0 4px 16px rgba(0,0,0,0.3), 0 16px 48px rgba(0,0,0,0.35);
-    --shadow-accent: 0 4px 16px rgba(232, 130, 84, 0.25), 0 8px 32px rgba(232, 130, 84, 0.2);
-  }
+  --shadow-1: 0 1px 2px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-2: 0 2px 8px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.3);
+  --shadow-3: 0 4px 16px rgba(0,0,0,0.3), 0 16px 48px rgba(0,0,0,0.35);
+  --shadow-accent: 0 4px 16px rgba(232, 130, 84, 0.25), 0 8px 32px rgba(232, 130, 84, 0.2);
 }
 
 /* ------ BASE ------ */
@@ -213,11 +227,9 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.45 0 0 0 0 0.35 0 0 0 0.08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: multiply;
 }
-@media (prefers-color-scheme: dark) {
-  body::before {
-    opacity: 0.22;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.9 0 0 0 0 0.8 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
+:root[data-theme="dark"] body::before {
+  opacity: 0.22;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 0.9 0 0 0 0 0.8 0 0 0 0.12 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 .app { position: relative; z-index: 1; }
 
@@ -283,6 +295,22 @@ body.modal-open { overflow: hidden; touch-action: none; }
   line-height: 1;
   font-variation-settings: "opsz" 72;
 }
+.brand-text .app-version {
+  display: inline-block;
+  margin-left: 7px;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: var(--accent-wash);
+  border: 1px solid var(--accent-soft);
+  color: var(--accent-2);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  vertical-align: middle;
+  font-variation-settings: normal;
+}
+:root[data-theme="dark"] .brand-text .app-version { color: var(--accent); }
 .brand-text .place {
   font-size: 11.5px; color: var(--text-2);
   margin: 2px 0 0;
@@ -412,9 +440,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .tabs { background: rgba(251, 248, 241, 0.98); }
 }
-@media (prefers-color-scheme: dark) {
-  .tabs { background: rgba(28, 24, 20, 0.88); }
-}
+:root[data-theme="dark"] .tabs { background: rgba(28, 24, 20, 0.88); }
 .tabs-inner {
   display: flex;
   width: 100%;
@@ -448,9 +474,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   color: var(--accent);
   transform: translateY(-1px);
 }
-@media (prefers-color-scheme: dark) {
-  .tab.active { color: var(--accent); }
-}
+:root[data-theme="dark"] .tab.active { color: var(--accent); }
 
 .view { display: none; animation: fadeIn var(--dur-med) var(--ease-out); }
 .view.active { display: block; }
@@ -593,9 +617,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   border-color: var(--accent-soft);
   color: var(--accent-2);
 }
-@media (prefers-color-scheme: dark) {
-  .filter-toggle.active { color: var(--accent); }
-}
+:root[data-theme="dark"] .filter-toggle.active { color: var(--accent); }
 .filter-toggle svg { width: 18px; height: 18px; }
 .filter-toggle .filter-badge {
   position: absolute;
@@ -1471,9 +1493,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   font-variation-settings: "opsz" 72;
   flex-shrink: 0;
 }
-@media (prefers-color-scheme: dark) {
-  .dash-top-row .rank { color: var(--accent); }
-}
+:root[data-theme="dark"] .dash-top-row .rank { color: var(--accent); }
 .dash-top-row .t-title {
   font-size: 13.5px; flex: 1;
   font-weight: 600;
@@ -1497,9 +1517,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   letter-spacing: -0.01em;
   flex-shrink: 0;
 }
-@media (prefers-color-scheme: dark) {
-  .dash-top-row .t-amount { color: var(--accent); }
-}
+:root[data-theme="dark"] .dash-top-row .t-amount { color: var(--accent); }
 
 /* Stats de suivi : cartes au lieu de tableau */
 .dash-kpi-grid {
@@ -1763,6 +1781,37 @@ body.modal-open { overflow: hidden; touch-action: none; }
   border-color: var(--accent-soft);
   color: var(--text);
 }
+
+/* Sélecteur de thème (Paramètres) */
+.theme-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.theme-option {
+  padding: 14px 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+.theme-option svg { width: 20px; height: 20px; }
+.theme-option:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.theme-option.selected {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent-2);
+  font-weight: 600;
+}
+:root[data-theme="dark"] .theme-option.selected { color: var(--accent); }
 
 /* Pastille importance dans éditeur */
 .importance-selector {
@@ -2308,7 +2357,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         </svg>
       </div>
       <div class="brand-text">
-        <p class="app-name">Logis</p>
+        <p class="app-name">Logis<span class="app-version" id="app-version"></span></p>
         <p class="place" id="place-label" title="Cliquer pour renommer"></p>
       </div>
     </div>
@@ -2577,6 +2626,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
 // fichier sw.js sur un serveur — ce qui n'est pas possible avec un fichier HTML local.
 
 (function() {
+  const APP_VERSION = 'v25';
+  const THEME_KEY = 'logis_theme';
   const STORAGE_KEY = 'logis_v14';
   const DB_NAME = 'logis_db';
   const DB_STORE = 'photos';
@@ -5741,6 +5792,9 @@ body.modal-open { overflow: hidden; touch-action: none; }
     const profile = loadProfile();
     updatePlaceLabel(profile);
 
+    const versionEl = document.getElementById('app-version');
+    if (versionEl) versionEl.textContent = APP_VERSION;
+
     // Show onboarding only on first ever load (no profile set)
     if (!profile.onboardingDone) {
       showOnboarding();
@@ -5815,9 +5869,53 @@ body.modal-open { overflow: hidden; touch-action: none; }
     el.textContent = profile.houseName || 'Ma maison';
   }
 
+  // ========== THÈME ==========
+  // Trois modes : 'light' (défaut), 'dark', 'auto' (suit le réglage système).
+  // Le mode est appliqué sur <html data-theme> ; tout le CSS sombre est sous
+  // :root[data-theme="dark"]. Un script inline dans <head> fait le premier rendu
+  // pour éviter le flash ; ces fonctions gèrent les changements à chaud.
+  function loadThemeMode() {
+    try { return localStorage.getItem(THEME_KEY) || 'light'; } catch (e) { return 'light'; }
+  }
+
+  function resolveTheme(mode) {
+    if (mode === 'auto') {
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return mode === 'dark' ? 'dark' : 'light';
+  }
+
+  function applyTheme(mode) {
+    const resolved = resolveTheme(mode);
+    document.documentElement.setAttribute('data-theme', resolved);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', resolved === 'dark' ? '#1c1814' : '#f5f1e8');
+  }
+
+  function setThemeMode(mode) {
+    try { localStorage.setItem(THEME_KEY, mode); } catch (e) {}
+    applyTheme(mode);
+  }
+
+  // En mode auto, suivre les changements système sans recharger la page.
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onSystemChange = () => { if (loadThemeMode() === 'auto') applyTheme('auto'); };
+    if (mq.addEventListener) mq.addEventListener('change', onSystemChange);
+    else if (mq.addListener) mq.addListener(onSystemChange);
+  }
+
   // ========== SETTINGS / PARAMÈTRES ==========
+  function themeOptionHtml(mode, label, iconPaths, current) {
+    return '<button class="theme-option' + (current === mode ? ' selected' : '') + '" data-theme-mode="' + mode + '">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + iconPaths + '</svg>' +
+      '<span>' + label + '</span>' +
+    '</button>';
+  }
+
   function openSettingsModal() {
     const p = loadProfile();
+    const currentTheme = loadThemeMode();
     const html =
       '<h2 style="display:flex;align-items:center;gap:10px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Paramètres</h2>' +
       '<p style="font-size:13px;color:var(--text-2);margin:0 0 20px;">Modifie tes données privées à tout moment. Tout reste sur ton appareil.</p>' +
@@ -5835,6 +5933,14 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<label for="set-housename">Nom de la maison</label>' +
         '<input type="text" id="set-housename" value="' + escapeHtml(p.houseName || '') + '" placeholder="Ex : Maison du Parc">' +
       '</div>' +
+
+      '<div style="margin:24px 0 10px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.07em;">Apparence</div>' +
+      '<div class="theme-selector" id="theme-selector">' +
+        themeOptionHtml('light', 'Clair', '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>', currentTheme) +
+        themeOptionHtml('dark', 'Sombre', '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>', currentTheme) +
+        themeOptionHtml('auto', 'Système', '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>', currentTheme) +
+      '</div>' +
+      '<p style="font-size:12px;color:var(--text-3);margin:8px 2px 0;line-height:1.45;">« Système » suit le réglage clair/sombre de ton téléphone.</p>' +
 
       '<div style="margin:24px 0 10px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.07em;">Équipements</div>' +
       '<button class="btn btn-sm" id="set-edit-equipment" style="width:100%;justify-content:center;padding:11px;">Modifier mes équipements</button>' +
@@ -5869,6 +5975,16 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<button class="btn btn-sm btn-primary" id="set-save-btn">Enregistrer</button>' +
       '</div>';
     openModal(html);
+
+    // Changement de thème : effet immédiat, sans attendre « Enregistrer ».
+    document.getElementById('theme-selector').addEventListener('click', e => {
+      const btn = e.target.closest('[data-theme-mode]');
+      if (!btn) return;
+      setThemeMode(btn.dataset.themeMode);
+      document.querySelectorAll('#theme-selector .theme-option').forEach(o => {
+        o.classList.toggle('selected', o === btn);
+      });
+    });
 
     document.getElementById('set-save-btn').addEventListener('click', () => {
       const profile = loadProfile();
