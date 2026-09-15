@@ -1613,6 +1613,14 @@ body.modal-open { overflow: hidden; touch-action: none; }
 .dash-horizon-item.h-warn .h-val { color: var(--warn); }
 .dash-horizon-item.h-ok .h-val { color: var(--ok); }
 
+/* Suivi véhicules */
+.dash-vehicle-list { display: flex; flex-direction: column; gap: 8px; }
+.dash-vehicle-row { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--shadow-1); }
+.dash-vehicle-row .vehicle-info { flex: 1; min-width: 0; }
+.dash-vehicle-row .v-name { font-weight: 600; font-size: 14px; color: var(--text); margin: 0 0 3px; }
+.dash-vehicle-row .v-sub { font-size: 12px; color: var(--text-3); margin: 0; }
+.vehicle-tag { font-size: 11.5px; color: var(--text-3); }
+
 /* Motivation inline (sur tâche en vue détaillée) */
 .motivation-banner {
   margin: 12px 0;
@@ -2966,7 +2974,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
       permNotes: t.permNotes || t.notes || '',
       archived: !!t.archived,
       importance: imp,                                   // v18 : 1=basse, 2=moyenne, 3=critique
-      estimatedCost: (t.estimatedCost == null || t.estimatedCost === '') ? null : Number(t.estimatedCost), // v18 : coût estimé manuel
+      estimatedCost: (t.estimatedCost == null || t.estimatedCost === '') ? null : Number(t.estimatedCost),
+      vehicle: t.vehicle || '',
       history: Array.isArray(t.history) ? t.history.map(h => ({
         id: h.id || uid('h'),
         date: h.date,
@@ -3309,6 +3318,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<p class="title"><span class="title-text">' + escapeHtml(t.title) + '</span>' + iconsHtml + '</p>' +
         '<p class="meta">' +
           '<span>' + dueLabel + '</span>' +
+          (t.vehicle ? '<span class="meta-sep"></span><span class="vehicle-tag">🚗 ' + escapeHtml(t.vehicle) + '</span>' : '') +
           (totalCost > 0 ? '<span class="meta-sep"></span><span>' + fmtEur(totalCost) + '</span>' : '') +
         '</p>' +
       '</div>' +
@@ -3536,6 +3546,34 @@ body.modal-open { overflow: hidden; touch-action: none; }
     html += '<div class="dash-horizon-item' + (nMois > 0 ? ' h-ok' : '') + '"><p class="h-val">' + nMois + '</p><p class="h-lbl">Ce mois</p></div>';
     html += '<div class="dash-horizon-item"><p class="h-val">' + nSuite + '</p><p class="h-lbl">Plus tard</p></div>';
     html += '</div></div>';
+
+    // Section Véhicules
+    const vehiculeTasks = active.filter(t => t.cat === 'vehicule');
+    if (vehiculeTasks.length > 0) {
+      const vehicleMap = {};
+      vehiculeTasks.forEach(t => {
+        const key = t.vehicle || '—';
+        if (!vehicleMap[key]) vehicleMap[key] = { tasks: [], cost: 0, passages: 0 };
+        vehicleMap[key].tasks.push(t);
+        vehicleMap[key].cost += taskTotalCost(t);
+        vehicleMap[key].passages += t.history.filter(h => h.cost != null).length;
+      });
+      html += '<div class="dash-section"><h3>Suivi <em>véhicules</em></h3><div class="dash-vehicle-list">';
+      Object.entries(vehicleMap).forEach(([name, data]) => {
+        const hasHistory = data.tasks.some(t => t.history.length > 0);
+        html += '<div class="dash-vehicle-row">' +
+          '<div class="vehicle-info">' +
+            '<p class="v-name">🚗 ' + escapeHtml(name) + '</p>' +
+            '<p class="v-sub">' + data.tasks.length + ' tâche' + (data.tasks.length > 1 ? 's' : '') +
+              (data.cost > 0 ? ' · ' + fmtEur(data.cost) + ' de frais' : '') +
+              (data.passages > 0 ? ' · ' + data.passages + ' passage' + (data.passages > 1 ? 's' : '') : '') +
+            '</p>' +
+          '</div>' +
+          (hasHistory ? '<button class="btn btn-sm" onclick="exportVehicleCsv(' + JSON.stringify(name === '—' ? null : name) + ')">↓ CSV</button>' : '') +
+        '</div>';
+      });
+      html += '</div></div>';
+    }
 
     c.innerHTML = html;
 
@@ -4181,7 +4219,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       motivation +
       '<h3>Fiche</h3>' +
       '<table>' +
-        '<tr><td>Catégorie</td><td>' + catLabels[t.cat] + '</td></tr>' +
+        '<tr><td>Catégorie</td><td>' + catLabels[t.cat] + (t.vehicle ? ' · <strong>' + escapeHtml(t.vehicle) + '</strong>' : '') + '</td></tr>' +
         impRow +
         '<tr><td>Fréquence</td><td>tous les ' + fmtFreq(t.freq) + '</td></tr>' +
         // v19 : la date du dernier passage est éditable directement depuis la fiche.
@@ -4261,6 +4299,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     const notes = t ? (t.permNotes || '') : '';
     const importance = t ? (t.importance || 1) : 1;
     const estimatedCost = t && t.estimatedCost != null ? t.estimatedCost : '';
+    const vehicle = t ? (t.vehicle || '') : '';
 
     const freqUI = daysToUnit(freq);
 
@@ -4304,6 +4343,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       '</div>' +
       '<div class="form-row"><label>Importance <span style="font-weight:400;color:var(--text-3);font-size:11px;">· risque si non réalisée</span></label>' + impHtml + '<input type="hidden" id="f-importance" value="' + importance + '"></div>' +
       '<div class="form-row"><label>Coût estimé <span style="font-weight:400;color:var(--text-3);font-size:11px;">· optionnel, € par passage</span></label><input id="f-estcost" type="number" min="0" step="0.01" value="' + escapeHtml(estimatedCost) + '" placeholder="Laisse vide pour utiliser la moyenne historique"></div>' +
+      '<div class="form-row" id="vehicle-row"' + (cat !== 'vehicule' ? ' style="display:none;"' : '') + '><label>Identification du véhicule <span style="font-weight:400;color:var(--text-3);font-size:11px;">· marque, modèle, plaque</span></label><input id="f-vehicle" type="text" value="' + escapeHtml(vehicle) + '" placeholder="ex : Peugeot 208 · BE-123-AB"></div>' +
       (t ? '' : '<div class="form-row"><label>Date de référence (dernier passage connu)</label><input id="f-last" type="date" value="' + last + '"></div>') +
       '<h3>Rappels d\'anticipation</h3>' +
       '<div id="reminders-container">' + remindersFormHtml(reminders) + '</div>' +
@@ -4321,6 +4361,15 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<button class="btn btn-sm btn-primary" data-m="save"' + (t ? ' data-id="' + t.id + '"' : '') + '>Enregistrer</button>' +
       '</div>'
     );
+
+    // Toggle vehicle field based on category
+    const catSel = document.getElementById('f-cat');
+    const vehicleRow = document.getElementById('vehicle-row');
+    if (catSel && vehicleRow) {
+      catSel.addEventListener('change', () => {
+        vehicleRow.style.display = catSel.value === 'vehicule' ? '' : 'none';
+      });
+    }
 
     // v18 : câblage des boutons d'importance
     document.querySelectorAll('.importance-btn').forEach(btn => {
@@ -4381,6 +4430,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
       address: document.getElementById('f-caddress').value.trim()
     };
     const permNotes = document.getElementById('f-notes').value.trim();
+    const vehicleEl = document.getElementById('f-vehicle');
+    const vehicle = vehicleEl ? vehicleEl.value.trim() : '';
     // v18 : importance et coût estimé
     const impEl = document.getElementById('f-importance');
     const importance = impEl ? Math.max(1, Math.min(3, parseInt(impEl.value, 10) || 1)) : 1;
@@ -4395,14 +4446,15 @@ body.modal-open { overflow: hidden; touch-action: none; }
         t.reminders = reminders; t.contact = contact; t.permNotes = permNotes;
         t.importance = importance;
         t.estimatedCost = estimatedCost;
+        t.vehicle = vehicle;
         if (t.history.length > 0) {
           const mostRecent = t.history.reduce((a,b) => a.date > b.date ? a : b);
           t.last = mostRecent.date;
-          const dd = new Date(mostRecent.date); dd.setHours(0,0,0,0);
-          dd.setDate(dd.getDate() + t.freq); t.due = iso(dd);
+          const [dy,dm,dd2] = mostRecent.date.split('-').map(Number);
+          const dObj = new Date(dy,dm-1,dd2); dObj.setDate(dObj.getDate() + t.freq); t.due = iso(dObj);
         } else if (t.last) {
-          const dd = new Date(t.last); dd.setHours(0,0,0,0);
-          dd.setDate(dd.getDate() + t.freq); t.due = iso(dd);
+          const [dy,dm,dd2] = t.last.split('-').map(Number);
+          const dObj = new Date(dy,dm-1,dd2); dObj.setDate(dObj.getDate() + t.freq); t.due = iso(dObj);
         }
       }
     } else {
@@ -4410,7 +4462,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       const last = lastEl ? lastEl.value : iso(today());
       const lastDate = new Date(last); lastDate.setHours(0,0,0,0);
       const due = new Date(lastDate); due.setDate(due.getDate() + freq);
-      tasks.push(normalizeTask({ id: uid(), title, desc, cat, freq, last: iso(lastDate), due: iso(due), reminders, contact, permNotes, importance, estimatedCost, history: [] }));
+      tasks.push(normalizeTask({ id: uid(), title, desc, cat, freq, last: iso(lastDate), due: iso(due), reminders, contact, permNotes, importance, estimatedCost, vehicle, history: [] }));
     }
     save(); render(); closeModal();
     toast(id ? 'Fiche modifiée' : 'Tâche créée');
@@ -5056,6 +5108,34 @@ body.modal-open { overflow: hidden; touch-action: none; }
       .replace(/[^a-z0-9]+/g, '_')
       .replace(/^_+|_+$/g, '');
     return n || 'maison';
+  }
+
+  function exportVehicleCsv(vehicleName) {
+    const vTasks = tasks.filter(t => !t.archived && t.cat === 'vehicule' &&
+      (vehicleName === null ? !t.vehicle : t.vehicle === vehicleName));
+    const entries = [];
+    vTasks.forEach(t => {
+      t.history.forEach(h => {
+        entries.push({ date: h.date, task: t.title, cost: h.cost, note: h.note || '' });
+      });
+    });
+    if (entries.length === 0) { toast('Aucun passage enregistré pour ce véhicule.'); return; }
+    entries.sort((a,b) => a.date.localeCompare(b.date));
+    const header = ['Date', 'Tâche', 'Coût (€)', 'Notes'];
+    const rows = [header, ...entries.map(e => [
+      e.date,
+      e.task,
+      e.cost != null ? String(e.cost).replace('.', ',') : '',
+      e.note
+    ])];
+    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    const safeName = vehicleName ? vehicleName.replace(/[^a-z0-9]/gi, '_').slice(0,30) : 'sans_vehicule';
+    a.download = 'frais_vehicule_' + safeName + '_' + iso(today()) + '.csv';
+    a.click(); URL.revokeObjectURL(url);
+    toast('CSV téléchargé ✓');
   }
 
   async function doExport() {
