@@ -30,6 +30,7 @@ const RULES = [
   },
   { what: 'manifeste', from: 'href="/manifest.webmanifest"', to: 'href="manifest.webmanifest"', count: 1 },
   { what: 'apple-touch-icon', from: 'href="/apple-touch-icon.png"', to: 'href="apple-touch-icon.png"', count: 1 },
+  { what: 'icône 32', from: 'href="/icon-32.png"', to: 'href="icon-32.png"', count: 1 },
   { what: 'icône 192', from: 'href="/icon-192.png"', to: 'href="icon-192.png"', count: 1 },
   { what: 'icône 512', from: 'href="/icon-512.png"', to: 'href="icon-512.png"', count: 1 },
   {
