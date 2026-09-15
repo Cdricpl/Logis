@@ -1605,6 +1605,23 @@ body.modal-open { overflow: hidden; touch-action: none; }
   #print-area .entry-photos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   #print-area .entry-photos img { max-width: 200px; max-height: 200px; object-fit: contain; border: 1px solid #ccc; }
   #print-area .photo-cap { font-size: 11px; color: #666 !important; text-align: center; }
+
+  /* Tableau de frais (rapport véhicule) : colonnes réelles, et non des paires
+     libellé/valeur — d'où l'annulation de la largeur imposée à la 1re colonne. */
+  #print-area .cost-table th {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
+    text-align: left; padding: 6px 8px; border-bottom: 1px solid #999;
+    color: #555 !important; font-weight: 600;
+  }
+  #print-area .cost-table td:first-child { width: auto; color: black !important; }
+  #print-area .cost-table .col-date { width: 20%; white-space: nowrap; }
+  #print-area .cost-table .col-amount { width: 18%; text-align: right; white-space: nowrap; font-weight: 600; }
+  #print-area .cost-table th.col-amount { text-align: right; }
+  #print-area .cost-table .row-note { font-size: 11px; color: #666 !important; font-style: italic; padding-top: 0; }
+  #print-area .cost-table tr.total-row td {
+    border-top: 1.5px solid #333; border-bottom: none;
+    font-weight: 700; font-size: 13px; padding-top: 8px;
+  }
 }
 /* ------ ONBOARDING ------ */
 .onboarding-overlay {
@@ -2884,7 +2901,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
               (data.passages > 0 ? ' · ' + data.passages + ' passage' + (data.passages > 1 ? 's' : '') : '') +
             '</p>' +
           '</div>' +
-          (hasHistory ? '<button class="btn btn-sm" data-csv-vehicle="' + escapeHtml(name) + '">Export CSV</button>' : '') +
+          (hasHistory ? '<button class="btn btn-sm" data-pdf-vehicle="' + escapeHtml(name) + '">Rapport PDF</button>' : '') +
         '</div>';
       });
       html += '</div></div>';
@@ -3032,12 +3049,12 @@ body.modal-open { overflow: hidden; touch-action: none; }
     if (day) calDayClick(day.dataset.calDay);
   });
 
-  // Export CSV par véhicule, depuis le tableau de bord.
+  // Rapport PDF par véhicule, depuis le tableau de bord.
   document.getElementById('dashboard-content').addEventListener('click', e => {
-    const btn = e.target.closest('[data-csv-vehicle]');
+    const btn = e.target.closest('[data-pdf-vehicle]');
     if (!btn) return;
-    const name = btn.dataset.csvVehicle;
-    exportVehicleCsv(name === '\u2014' ? null : name);
+    const name = btn.dataset.pdfVehicle;
+    printVehicle(name === '\u2014' ? null : name);
   });
 
   // ---------- Render everything ----------
@@ -4343,7 +4360,10 @@ body.modal-open { overflow: hidden; touch-action: none; }
     return n || 'maison';
   }
 
-  function exportVehicleCsv(vehicleName) {
+  // v26.2 : rapport de frais par véhicule, en PDF via l'impression du navigateur
+  // (même mécanisme que printTask). Remplace l'ancien export CSV : un tableur
+  // n'est pas le bon format pour un relevé qu'on archive ou qu'on transmet.
+  function printVehicle(vehicleName) {
     const vTasks = tasks.filter(t => !t.archived && t.cat === 'vehicule' &&
       (vehicleName === null ? !t.vehicle : t.vehicle === vehicleName));
     const entries = [];
@@ -4353,25 +4373,57 @@ body.modal-open { overflow: hidden; touch-action: none; }
       });
     });
     if (entries.length === 0) { toast('Aucun passage enregistré pour ce véhicule.'); return; }
-    entries.sort((a,b) => a.date.localeCompare(b.date));
-    const header = ['Date', 'Tâche', 'Coût (€)', 'Notes'];
-    const rows = [header, ...entries.map(e => [
-      e.date,
-      e.task,
-      e.cost != null ? String(e.cost).replace('.', ',') : '',
-      e.note
-    ])];
-    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(';')).join('\r\n');
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url;
-    const safeName = vehicleName ? vehicleName.replace(/[^a-z0-9]/gi, '_').slice(0,30) : 'sans_vehicule';
-    a.download = 'frais_vehicule_' + safeName + '_' + iso(today()) + '.csv';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    toast('CSV téléchargé ✓');
-  }
 
+    toast('Préparation du PDF...');
+    entries.sort((a, b) => a.date.localeCompare(b.date));
+
+    const total = entries.reduce((sum, e) => sum + (e.cost != null ? e.cost : 0), 0);
+    const withCost = entries.filter(e => e.cost != null).length;
+    const label = vehicleName || 'Véhicule sans identification';
+    const houseName = loadProfile().houseName || 'Ma maison';
+
+    let html = '<h1>' + escapeHtml(label) + '</h1>';
+    html += '<p class="meta-info">Relevé de frais · Logis · ' + escapeHtml(houseName) +
+            ' · Édité le ' + fmtDate(iso(today())) + '</p>';
+
+    html += '<h2>Synthèse</h2><table>';
+    html += '<tr><td>Tâches suivies</td><td>' + vTasks.length + '</td></tr>';
+    html += '<tr><td>Passages enregistrés</td><td>' + entries.length + '</td></tr>';
+    if (withCost > 0) {
+      html += '<tr><td>Total dépensé</td><td>' + fmtEur(total) + '</td></tr>';
+      html += '<tr><td>Coût moyen par passage</td><td>' + fmtEur(total / withCost) + '</td></tr>';
+    }
+    html += '<tr><td>Période couverte</td><td>' + fmtDate(entries[0].date) +
+            ' — ' + fmtDate(entries[entries.length - 1].date) + '</td></tr>';
+    html += '</table>';
+
+    html += '<h2>Détail des frais</h2>';
+    html += '<table class="cost-table"><thead><tr>' +
+              '<th class="col-date">Date</th><th>Intervention</th><th class="col-amount">Coût</th>' +
+            '</tr></thead><tbody>';
+    entries.forEach(e => {
+      html += '<tr>' +
+        '<td class="col-date">' + fmtDate(e.date) + '</td>' +
+        '<td>' + escapeHtml(e.task) + '</td>' +
+        '<td class="col-amount">' + (e.cost != null ? fmtEur(e.cost) : '—') + '</td>' +
+      '</tr>';
+      if (e.note) {
+        html += '<tr><td></td><td class="row-note" colspan="2">' + escapeHtml(e.note) + '</td></tr>';
+      }
+    });
+    if (withCost > 0) {
+      html += '<tr class="total-row"><td class="col-date"></td><td>Total</td>' +
+              '<td class="col-amount">' + fmtEur(total) + '</td></tr>';
+    }
+    html += '</tbody></table>';
+
+    const area = document.getElementById('print-area');
+    area.innerHTML = html;
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => { area.innerHTML = ''; }, 1000);
+    }, 300);
+  }
   async function doExport() {
     const payload = await buildExportPayload();
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
