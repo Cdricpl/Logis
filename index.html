@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- Logis v25 -->
+<!-- Logis v26 -->
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -210,11 +210,6 @@ html, body {
 }
 body {
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  background-image:
-    radial-gradient(ellipse 900px 600px at 15% -8%, rgba(200, 90, 48, 0.08), transparent 60%),
-    radial-gradient(ellipse 700px 500px at 95% 8%, rgba(47, 160, 196, 0.05), transparent 65%),
-    radial-gradient(ellipse 600px 500px at 50% 100%, rgba(232, 168, 32, 0.06), transparent 70%);
-  background-attachment: fixed;
   min-height: 100vh;
   position: relative;
 }
@@ -251,7 +246,7 @@ textarea:focus-visible,
 summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 6px;
+  border-radius: var(--r-xs);
 }
 
 /* v23 — Verrouillage du scroll body quand une modale est ouverte.
@@ -269,7 +264,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 }
 .header-left { display: flex; align-items: center; gap: 12px; }
 .logo-mark {
-  width: 48px; height: 48px; border-radius: 14px;
+  width: 48px; height: 48px; border-radius: var(--r-sm);
   background: linear-gradient(145deg, var(--accent) 0%, var(--accent-2) 100%);
   display: grid; place-items: center;
   color: white;
@@ -277,12 +272,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   flex-shrink: 0;
   position: relative;
   overflow: hidden;
-}
-.logo-mark::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent 50%);
-  pointer-events: none;
 }
 .logo-mark svg { width: 40px; height: 40px; position: relative; z-index: 1; }
 .brand-text .app-name {
@@ -304,7 +293,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   border: 1px solid var(--accent-soft);
   color: var(--accent-2);
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.03em;
   vertical-align: middle;
@@ -312,18 +301,14 @@ body.modal-open { overflow: hidden; touch-action: none; }
 }
 :root[data-theme="dark"] .brand-text .app-version { color: var(--accent); }
 .brand-text .place {
-  font-size: 11.5px; color: var(--text-2);
+  font-size: 11px; color: var(--text-2);
   margin: 2px 0 0;
   font-weight: 500;
   cursor: pointer;
   display: inline-flex; align-items: center; gap: 4px;
-  border-radius: 4px;
+  border-radius: var(--r-xs);
   padding: 1px 4px 1px 2px;
   transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
-}
-.brand-text .place:hover {
-  background: var(--accent-wash);
-  color: var(--accent-2);
 }
 .brand-text .place::after {
   content: '';
@@ -334,35 +319,17 @@ body.modal-open { overflow: hidden; touch-action: none; }
   opacity: 0.7;
   flex-shrink: 0;
 }
-.brand-text .place:hover::after { opacity: 1; }
 .header-right { display: flex; gap: 8px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
 
 /* Editorial title block */
 .hero {
-  margin: 8px 0 20px;
+  margin: 2px 0 14px;
 }
 .hero .greeting {
   font-size: 13px;
   color: var(--text-2);
   margin: 0 0 6px;
   font-weight: 500;
-}
-.hero h1 {
-  font-family: var(--font-display);
-  font-size: 30px; font-weight: 500;
-  margin: 0;
-  letter-spacing: -0.02em;
-  line-height: 1.08;
-  color: var(--text);
-  font-variation-settings: "opsz" 72;
-}
-.hero h1 em {
-  font-style: italic;
-  font-weight: 400;
-  color: var(--accent-2);
-}
-@media (min-width: 640px) {
-  .hero h1 { font-size: 38px; }
 }
 
 /* ------ BUTTONS ------ */
@@ -377,29 +344,19 @@ body.modal-open { overflow: hidden; touch-action: none; }
   white-space: nowrap;
   letter-spacing: 0.005em;
 }
-.btn:hover { background: var(--surface-2); border-color: var(--border-strong); transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .btn:active { transform: translateY(0); box-shadow: var(--shadow-1); }
 .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
 
 .btn-primary { background: var(--accent); border-color: var(--accent); color: white; box-shadow: var(--shadow-accent); }
-.btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); color: white; }
 .btn-primary svg { color: white; }
 
 .btn-danger { border-color: var(--danger-border); color: var(--danger); background: var(--surface); }
-.btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
-
-.btn-ghost { background: transparent; border-color: transparent; box-shadow: none; }
-.btn-ghost:hover { background: var(--surface-2); box-shadow: var(--shadow-1); }
-
-.btn-sm { padding: 7px 12px; font-size: 12px; }
+.btn-sm { padding: 9px 14px; font-size: 13px; min-height: 40px; }
 .btn-sm svg { width: 12px; height: 12px; }
-
-.btn-icon { padding: 9px; border-radius: 50%; width: 36px; height: 36px; justify-content: center; }
-.btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* Round icon button with optional notification dot */
 .icon-btn {
-  width: 40px; height: 40px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -411,7 +368,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   box-shadow: var(--shadow-1);
   transition: all var(--dur-fast) var(--ease-out);
 }
-.icon-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
 .icon-btn svg { width: 18px; height: 18px; }
 .icon-btn.has-notif::after {
   content: '';
@@ -453,9 +409,9 @@ body.modal-open { overflow: hidden; touch-action: none; }
   border: none;
   color: var(--text-3);
   padding: 8px 4px 6px;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
-  border-radius: 14px;
+  border-radius: var(--r-sm);
   white-space: nowrap;
   transition: all var(--dur-fast) var(--ease-out);
   display: flex;
@@ -465,7 +421,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   letter-spacing: 0.01em;
 }
 .tab svg { width: 21px; height: 21px; transition: transform var(--dur-fast) var(--ease-out); }
-.tab:hover { color: var(--text-2); }
 .tab.active {
   color: var(--accent-2);
   background: transparent;
@@ -480,30 +435,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
 .view.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-/* Staggered entry for list items - only on initial view activation */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.view.active.animate-in .list .row,
-.view.active.animate-in .dash-cat-list .dash-cat-row,
-.view.active.animate-in .dash-top .dash-top-row {
-  animation: slideUp var(--dur-med) var(--ease-out) both;
-}
-.view.active.animate-in .list .row:nth-child(1), .view.active.animate-in .dash-cat-list .dash-cat-row:nth-child(1), .view.active.animate-in .dash-top .dash-top-row:nth-child(1) { animation-delay: 0ms; }
-.view.active.animate-in .list .row:nth-child(2), .view.active.animate-in .dash-cat-list .dash-cat-row:nth-child(2), .view.active.animate-in .dash-top .dash-top-row:nth-child(2) { animation-delay: 35ms; }
-.view.active.animate-in .list .row:nth-child(3), .view.active.animate-in .dash-cat-list .dash-cat-row:nth-child(3), .view.active.animate-in .dash-top .dash-top-row:nth-child(3) { animation-delay: 70ms; }
-.view.active.animate-in .list .row:nth-child(4), .view.active.animate-in .dash-cat-list .dash-cat-row:nth-child(4), .view.active.animate-in .dash-top .dash-top-row:nth-child(4) { animation-delay: 105ms; }
-.view.active.animate-in .list .row:nth-child(5), .view.active.animate-in .dash-cat-list .dash-cat-row:nth-child(5), .view.active.animate-in .dash-top .dash-top-row:nth-child(5) { animation-delay: 140ms; }
-.view.active.animate-in .list .row:nth-child(6) { animation-delay: 175ms; }
-.view.active.animate-in .list .row:nth-child(7) { animation-delay: 210ms; }
-.view.active.animate-in .list .row:nth-child(8) { animation-delay: 245ms; }
-.view.active.animate-in .list .row:nth-child(n+9) { animation-delay: 280ms; }
-
-@media (prefers-reduced-motion: reduce) {
-  .view.active.animate-in .list .row, .view.active.animate-in .dash-cat-list .dash-cat-row, .view.active.animate-in .dash-top .dash-top-row { animation: none; }
-}
-
 /* ------ CALENDAR ------ */
 .cal-wrap { padding: 0 4px 80px; }
 .cal-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px 10px; }
@@ -516,22 +447,21 @@ body.modal-open { overflow: hidden; touch-action: none; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
 .cal-dow { text-align: center; font-size: 11px; font-weight: 600; color: var(--text-3); padding: 4px 0 8px; }
 .cal-day {
-  min-height: 70px; border-radius: 10px; padding: 5px 4px 4px;
+  min-height: 70px; border-radius: var(--r-xs); padding: 5px 4px 4px;
   cursor: pointer; background: var(--surface);
   border: 1px solid var(--border);
   overflow: hidden;
   transition: box-shadow var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
-.cal-day:hover { box-shadow: var(--shadow-2); border-color: var(--border-strong); }
 .cal-day--empty { background: none; border: none; pointer-events: none; }
 .cal-day--today { background: var(--accent-wash); border-color: var(--accent-soft); }
 .cal-day--today .cal-day-num { background: var(--accent); color: #fff; border-radius: 50%; }
 .cal-day--selected { outline: 2px solid var(--accent); outline-offset: -2px; box-shadow: var(--shadow-accent); }
 .cal-day--past { background: var(--bg); }
 .cal-day--past.cal-day--has-tasks { opacity: 0.6; }
-.cal-day-num { font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-bottom: 3px; }
-.cal-task-chip { font-size: 9.5px; border-radius: 4px; padding: 1.5px 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
-.cal-task-more { font-size: 9.5px; color: var(--text-3); font-weight: 600; text-align: center; padding: 1px 0; }
+.cal-day-num { font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; margin-bottom: 3px; }
+.cal-task-chip { font-size: 11px; border-radius: var(--r-xs); padding: 1.5px 4px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+.cal-task-more { font-size: 11px; color: var(--text-3); font-weight: 600; text-align: center; padding: 1px 0; }
 .cal-detail {
   margin-top: 14px;
   background: var(--surface);
@@ -548,11 +478,39 @@ body.modal-open { overflow: hidden; touch-action: none; }
   letter-spacing: -0.01em;
 }
 .cal-detail-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; transition: background var(--dur-fast); border-radius: var(--r-xs); }
-.cal-detail-row:hover { background: var(--surface-2); }
 .cal-detail-row:last-child { border: none; }
 .cal-detail-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 .cal-no-tasks { text-align: center; padding: 40px 16px; color: var(--text-3); font-size: 13px; }
 .cal-no-tasks svg { width: 36px; height: 36px; margin: 0 auto 10px; display: block; opacity: 0.4; }
+
+/* ------ ARCHIVE SEARCH ------ */
+.archive-search-bar {
+  margin-bottom: 14px;
+}
+.archive-search-bar .search-wrap {
+  position: relative;
+}
+.archive-search-bar .search-wrap svg {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  width: 16px; height: 16px; color: var(--text-3); pointer-events: none;
+}
+.archive-search-bar input[type=search] {
+  width: 100%;
+  padding: 12px 14px 12px 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-size: 14px;
+  box-shadow: var(--shadow-1);
+  transition: all var(--dur-fast) var(--ease-out);
+  color: var(--text);
+}
+.archive-search-bar input[type=search]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+}
+.archive-search-bar input[type=search]::placeholder { color: var(--text-3); }
 
 /* ------ SEARCH BAR ------ */
 .search-bar {
@@ -571,7 +529,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   width: 100%;
   padding: 13px 14px 13px 40px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--r-sm);
   background: var(--surface);
   font-size: 14px;
   box-shadow: var(--shadow-1);
@@ -587,7 +545,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 .search-bar select {
   padding: 11px 14px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--r-sm);
   background: var(--surface);
   font-size: 13px;
   box-shadow: var(--shadow-1);
@@ -595,12 +553,10 @@ body.modal-open { overflow: hidden; touch-action: none; }
   transition: all var(--dur-fast) var(--ease-out);
   color: var(--text);
 }
-.search-bar select:hover { border-color: var(--border-strong); }
-
 /* Filter toggle button with badge */
 .filter-toggle {
   width: 46px; height: 46px;
-  border-radius: 14px;
+  border-radius: var(--r-sm);
   border: 1px solid var(--border);
   background: var(--surface);
   display: flex; align-items: center; justify-content: center;
@@ -611,7 +567,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   transition: all var(--dur-fast) var(--ease-out);
   cursor: pointer;
 }
-.filter-toggle:hover { background: var(--surface-2); border-color: var(--border-strong); }
 .filter-toggle.active {
   background: var(--accent-wash);
   border-color: var(--accent-soft);
@@ -624,65 +579,55 @@ body.modal-open { overflow: hidden; touch-action: none; }
   top: -5px; right: -5px;
   min-width: 18px; height: 18px;
   padding: 0 5px;
-  border-radius: 9px;
+  border-radius: var(--r-xs);
   background: var(--accent);
   color: white;
-  font-size: 10px; font-weight: 700;
+  font-size: 11px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   border: 2px solid var(--surface);
 }
 
 /* ------ STATS ------ */
-/* v19 : design allégé, sans ombres ni pastille décorative — plus plat, plus calme, plus lisible sur mobile. */
+/* v26 : bandeau compact. Les quatre tuiles étaient sur fonds saturés (rouge,
+   ambre, terracotta) et se disputaient l'attention avec les chips de filtre et
+   les lignes de tâches. Fond neutre pour toutes : seule la valeur est colorée,
+   ce qui suffit à faire ressortir un retard. Hauteur divisée par deux. */
 .stats {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
   margin-bottom: 16px;
-}
-@media (min-width: 480px) {
-  .stats { grid-template-columns: repeat(4, 1fr); }
 }
 .stat {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 14px 14px 12px;
-  position: relative;
-  overflow: hidden;
-  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
-}
-.stat .lbl {
-  font-size: 10px; font-weight: 600;
-  margin: 8px 0 0;
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  border-radius: var(--r-sm);
+  padding: 10px 6px 9px;
+  text-align: center;
 }
 .stat .val {
   font-family: var(--font-display);
-  font-size: 28px; font-weight: 500;
+  font-size: 22px; font-weight: 500;
   margin: 0;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.02em;
   line-height: 1;
   font-variation-settings: "opsz" 96;
-  color: var(--text);
+  color: var(--text-3);
+  font-variant-numeric: tabular-nums;
 }
-.stat.primary {
-  background: var(--accent-wash);
-  border-color: var(--accent-soft);
-  color: var(--accent-2);
+.stat .lbl {
+  font-size: 11px; font-weight: 500;
+  margin: 5px 0 0;
+  color: var(--text-3);
+  letter-spacing: 0.01em;
 }
-.stat.primary .val { color: var(--accent-2); }
-.stat.primary .lbl { color: var(--accent-2); opacity: 0.75; }
-.stat.late { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-border); }
-.stat.late .lbl, .stat.late .val { color: var(--danger); }
-.stat.week { color: var(--warn); background: var(--warn-bg); border-color: var(--warn-border); }
-.stat.week .lbl, .stat.week .val { color: var(--warn); }
-.stat.month { color: var(--info); background: var(--info-bg); border-color: var(--info-border); }
-.stat.month .lbl, .stat.month .val { color: var(--info); }
-.stat.good { color: var(--ok); background: var(--ok-bg); border-color: var(--ok-border); }
-.stat.good .lbl, .stat.good .val { color: var(--ok); }
+/* La couleur ne s'applique qu'au chiffre, et seulement s'il est non nul :
+   un « 0 en retard » n'a aucune raison de crier en rouge. */
+.stat .val.has-value { color: var(--text); }
+.stat.late .val.has-value { color: var(--danger); }
+.stat.week .val.has-value { color: var(--warn); }
+.stat.month .val.has-value { color: var(--accent-2); }
+:root[data-theme="dark"] .stat.month .val.has-value { color: var(--accent); }
 
 /* ------ FILTERS ------ */
 .chips-row {
@@ -706,7 +651,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   flex: 1;
   padding: 9px 14px;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: var(--r-sm);
   background: var(--surface);
   font-size: 13px;
   color: var(--text-2);
@@ -714,37 +659,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   box-shadow: var(--shadow-1);
   transition: all var(--dur-fast) var(--ease-out);
 }
-.sort-row select:hover { border-color: var(--border-strong); }
 .sort-row select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-
-/* ------ ARCHIVE SEARCH ------ */
-.archive-search-bar {
-  margin-bottom: 14px;
-}
-.archive-search-bar .search-wrap {
-  position: relative;
-}
-.archive-search-bar .search-wrap svg {
-  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-  width: 16px; height: 16px; color: var(--text-3); pointer-events: none;
-}
-.archive-search-bar input[type=search] {
-  width: 100%;
-  padding: 12px 14px 12px 40px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--surface);
-  font-size: 14px;
-  box-shadow: var(--shadow-1);
-  transition: all var(--dur-fast) var(--ease-out);
-  color: var(--text);
-}
-.archive-search-bar input[type=search]:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px var(--accent-soft);
-}
-.archive-search-bar input[type=search]::placeholder { color: var(--text-3); }
 
 .cat-panel {
   display: none;
@@ -758,7 +673,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 }
 .cat-panel.open { display: block; }
 .cat-panel-label {
-  font-size: 10px; font-weight: 600;
+  font-size: 11px; font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-3);
@@ -786,7 +701,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   letter-spacing: 0.005em;
   cursor: pointer;
 }
-.filter:hover { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
 .filter.active {
   background: var(--text); color: var(--surface);
   border-color: var(--text);
@@ -820,13 +734,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   font-weight: 500;
 }
 
-/* v20 : l'ancien empty-today (feuille + "Rien ne presse") a été retiré.
-   Il est remplacé par la bulle .today-motivation (définie plus bas), qui est
-   l'unique zone de message dynamique. */
-
-/* ------ TASK LIST ------ */
-.list { display: flex; flex-direction: column; gap: 10px; }
-
 .row {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -848,44 +755,19 @@ body.modal-open { overflow: hidden; touch-action: none; }
   background: var(--row-color, var(--border-strong));
   transition: all var(--dur-fast) var(--ease-out);
 }
-.row:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-2);
-  border-color: var(--border-strong);
-}
-.row:hover::before {
-  top: 8px; bottom: 8px;
-  width: 5px;
-}
 .row.archived { opacity: 0.6; }
-.row.late {
-  background: linear-gradient(145deg, var(--surface) 0%, var(--danger-bg) 160%);
-}
 .row.late::before { background: var(--danger); }
-.row.featured {
-  background: linear-gradient(145deg, var(--surface) 0%, var(--accent-wash) 100%);
-  border-color: var(--accent-soft);
-  box-shadow: 0 2px 10px var(--accent-glow), var(--shadow-1);
-}
-
 .cat-icon {
-  width: 42px; height: 42px; border-radius: 12px;
+  width: 42px; height: 42px; border-radius: var(--r-sm);
   display: grid; place-items: center;
   flex-shrink: 0;
   position: relative;
-}
-.cat-icon::after {
-  content: '';
-  position: absolute; inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent 55%);
-  pointer-events: none;
 }
 .cat-icon svg { width: 20px; height: 20px; position: relative; z-index: 1; }
 
 .row .body { flex: 1; min-width: 0; position: relative; z-index: 1; }
 .row .title {
-  font-size: 14.5px; font-weight: 600;
+  font-size: 14px; font-weight: 600;
   margin: 0 0 4px;
   color: var(--text);
   line-height: 1.3;
@@ -921,17 +803,12 @@ body.modal-open { overflow: hidden; touch-action: none; }
   display: inline-flex; align-items: center; gap: 4px;
   letter-spacing: 0.015em;
 }
-.pill-late { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
-.pill-soon { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-border); }
-.pill-prep { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
-.pill-ok { background: var(--surface-2); color: var(--text-2); border: 1px solid var(--border); }
-.pill-cat { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
 .pill-archived { background: var(--surface-3); color: var(--text-2); border: 1px solid var(--border); }
 
 .row .actions { display: flex; gap: 7px; flex-shrink: 0; position: relative; z-index: 1; align-items: center; }
 
 .check-btn {
-  width: 36px; height: 36px;
+  width: 44px; height: 44px;
   border-radius: 50%;
   background: var(--surface);
   border: 1.5px solid var(--border-strong);
@@ -940,12 +817,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   transition: all var(--dur-fast) var(--ease-out);
   padding: 0;
   cursor: pointer;
-}
-.check-btn:hover {
-  background: var(--ok);
-  border-color: var(--ok);
-  color: white;
-  transform: scale(1.08);
 }
 .check-btn svg { width: 16px; height: 16px; }
 
@@ -1005,10 +876,10 @@ body.modal-open { overflow: hidden; touch-action: none; }
    Réutilise data-m="close" → dispatcher existant. */
 .modal-close-x {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
+  top: 10px;
+  right: 10px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--surface);
@@ -1023,12 +894,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   transition: all var(--dur-fast) var(--ease-out);
   box-shadow: var(--shadow-1);
   z-index: 2;
-}
-.modal-close-x:hover {
-  background: var(--surface-2);
-  border-color: var(--border-strong);
-  color: var(--text);
-  transform: rotate(90deg);
 }
 .modal-close-x:active { transform: rotate(90deg) scale(0.92); }
 /* Garantit que le titre H2 ne passe pas sous la croix */
@@ -1072,8 +937,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   font-weight: 500; word-break: break-word;
 }
 .modal table a { color: var(--info); text-decoration: none; }
-.modal table a:hover { text-decoration: underline; }
-
 .modal .form-row { margin-bottom: 14px; }
 .modal .form-row-2 {
   display: grid;
@@ -1135,7 +998,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   font-size: 18px; padding: 0 4px; line-height: 1;
   opacity: 0.6; transition: opacity var(--dur-fast);
 }
-.reminder-item .del:hover { opacity: 1; }
 .reminder-add { display: flex; gap: 6px; align-items: center; }
 .reminder-add select { flex: 1; }
 
@@ -1212,9 +1074,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
   cursor: pointer;
   transition: transform var(--dur-fast) var(--ease-out);
 }
-.entry .entry-photo:hover { transform: scale(1.05); }
 .entry .photo-label {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-3);
   text-align: center;
   margin-top: 4px;
@@ -1235,10 +1096,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   text-align: left; width: 100%;
   color: var(--text);
   transition: all var(--dur-fast) var(--ease-out);
-}
-.entry .file-chip:hover {
-  border-color: var(--accent);
-  background: var(--accent-soft);
 }
 .entry .file-chip .file-ico {
   font-size: 18px;
@@ -1267,21 +1124,12 @@ body.modal-open { overflow: hidden; touch-action: none; }
   border: 1px solid var(--info-border);
   border-radius: var(--r-md);
   padding: 16px 18px;
-  font-size: 13.5px;
+  font-size: 13px;
   margin-bottom: 16px;
   display: flex; align-items: center; gap: 12px;
   box-shadow: var(--shadow-1);
   position: relative;
   overflow: hidden;
-}
-.summary::after {
-  content: '';
-  position: absolute;
-  top: -30px; right: -30px;
-  width: 100px; height: 100px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--accent-glow), transparent 70%);
-  pointer-events: none;
 }
 .summary svg { width: 22px; height: 22px; color: var(--info); flex-shrink: 0; position: relative; z-index: 1; }
 .summary strong { font-weight: 600; }
@@ -1309,7 +1157,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   font-size: 14px; line-height: 1; padding: 0;
   transition: all var(--dur-fast) var(--ease-out);
 }
-.photos-form .ph-thumb .rm:hover { background: var(--danger); transform: scale(1.1); }
 .photos-form .ph-thumb input {
   font-size: 11px; padding: 4px 6px;
   background: var(--bg-2);
@@ -1369,26 +1216,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
   overflow: hidden;
   box-shadow: 0 8px 24px var(--accent-glow), var(--shadow-1);
 }
-.dash-hero::before {
-  content: '';
-  position: absolute;
-  top: -60px; right: -60px;
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.12);
-  pointer-events: none;
-}
-.dash-hero::after {
-  content: '';
-  position: absolute;
-  bottom: -40px; right: 40px;
-  width: 120px; height: 120px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.08);
-  pointer-events: none;
-}
 .dash-hero .lbl {
-  font-size: 10px; font-weight: 600;
+  font-size: 11px; font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: rgba(255,255,255,0.78);
@@ -1433,7 +1262,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   border-radius: 0 3px 3px 0;
   background: var(--cat-color, var(--accent));
 }
-.dash-cat-row:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); }
 .dash-cat-row .cat-name {
   font-size: 13px; font-weight: 600;
   flex: 0 0 auto;
@@ -1469,249 +1297,9 @@ body.modal-open { overflow: hidden; touch-action: none; }
   text-align: right;
 }
 
-/* Top tasks : rangs dans pastilles */
-.dash-top { display: flex; flex-direction: column; gap: 8px; }
-.dash-top-row {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-1);
-  transition: all var(--dur-fast) var(--ease-out);
-}
-.dash-top-row:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); }
-.dash-top-row .rank {
-  font-family: var(--font-display);
-  font-weight: 500; font-size: 17px;
-  color: var(--accent-2);
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  background: var(--accent-wash);
-  display: flex; align-items: center; justify-content: center;
-  letter-spacing: -0.02em;
-  font-variation-settings: "opsz" 72;
-  flex-shrink: 0;
-}
-:root[data-theme="dark"] .dash-top-row .rank { color: var(--accent); }
-.dash-top-row .t-title {
-  font-size: 13.5px; flex: 1;
-  font-weight: 600;
-  color: var(--text);
-  overflow: hidden; text-overflow: ellipsis;
-}
-.dash-top-row .t-title em {
-  color: var(--text-3);
-  font-style: normal;
-  font-size: 11px;
-  font-weight: 500;
-  display: block;
-  margin-top: 2px;
-  letter-spacing: 0.01em;
-}
-.dash-top-row .t-amount {
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--accent-2);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
-  flex-shrink: 0;
-}
-:root[data-theme="dark"] .dash-top-row .t-amount { color: var(--accent); }
-
-/* Stats de suivi : cartes au lieu de tableau */
-.dash-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 8px;
-}
-.dash-kpi {
-  padding: 14px 16px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-1);
-}
-.dash-kpi .k-lbl {
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-3);
-  margin: 0 0 6px;
-}
-.dash-kpi .k-val {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  color: var(--text);
-  margin: 0;
-  font-variation-settings: "opsz" 72;
-}
-.dash-kpi .k-val .unit {
-  font-size: 13px;
-  color: var(--text-3);
-  font-weight: 500;
-  font-family: var(--font-body);
-  margin-left: 3px;
-}
-
-/* ============================================= */
-/* v18 · Nouvelles sections du dashboard         */
-/* ============================================= */
-
-/* Score d'entretien — anneau circulaire */
-.dash-score {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
-  margin: 0 0 20px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-1);
-  position: relative;
-  overflow: hidden;
-}
-.dash-score::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 3px;
-  background: var(--score-color, var(--accent));
-}
-.score-ring {
-  position: relative;
-  width: 74px; height: 74px;
-  flex-shrink: 0;
-}
-.score-ring circle {
-  transition: stroke-dashoffset var(--dur-slow) var(--ease-out);
-}
-.score-num {
-  position: absolute;
-  inset: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display);
-  font-size: 24px; font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--text);
-  font-variation-settings: "opsz" 72;
-}
-.score-body { flex: 1; min-width: 0; }
-.score-title {
-  font-family: var(--font-display);
-  font-size: 17px; font-weight: 500;
-  margin: 0 0 4px;
-  color: var(--text);
-  font-variation-settings: "opsz" 72;
-  letter-spacing: -0.01em;
-}
-.score-title em {
-  font-style: italic; font-weight: 400;
-  color: var(--score-color, var(--accent-2));
-}
-.score-sub {
-  font-size: 12.5px;
-  color: var(--text-2);
-  margin: 0;
-  line-height: 1.4;
-}
-
-/* Comparaison années */
-.dash-compare {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 14px;
-  align-items: center;
-  padding: 18px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  box-shadow: var(--shadow-1);
-}
-.compare-col { text-align: center; }
-.compare-col .c-lbl {
-  font-size: 10.5px; font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-3);
-  margin: 0 0 4px;
-}
-.compare-col .c-val {
-  font-family: var(--font-display);
-  font-size: 22px; font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--text);
-  margin: 0;
-  font-variant-numeric: tabular-nums;
-  font-variation-settings: "opsz" 72;
-}
-.compare-col .c-sub {
-  font-size: 11.5px;
-  color: var(--text-3);
-  margin: 2px 0 0;
-}
-.compare-arrow {
-  font-family: var(--font-display);
-  font-size: 30px; font-weight: 400;
-  color: var(--accent);
-  line-height: 1;
-  opacity: 0.7;
-}
-.compare-delta {
-  margin: 10px 2px 0;
-  font-size: 13px;
-  font-weight: 600;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Anomalies détectées */
-.dash-anomalies { display: flex; flex-direction: column; gap: 8px; }
-.anomaly-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  background: var(--warn-bg);
-  border: 1px solid var(--warn-border);
-  border-radius: var(--r-md);
-}
-.anomaly-icon {
-  font-size: 20px;
-  flex-shrink: 0;
-  line-height: 1;
-  margin-top: 1px;
-}
-.anomaly-body { flex: 1; min-width: 0; }
-.anomaly-row .a-title {
-  font-size: 14px; font-weight: 600;
-  margin: 0 0 3px;
-  color: var(--text);
-}
-.anomaly-row .a-sub {
-  font-size: 12.5px;
-  color: var(--text-2);
-  margin: 0;
-  line-height: 1.45;
-}
-
 /* Activité mensuelle — graphique SVG */
 .dash-activity-chart { overflow: hidden; margin: 0; }
 .dash-activity-chart svg { display: block; overflow: visible; }
-
-/* Horizon à venir */
-.dash-horizon { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.dash-horizon-item { padding: 12px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); text-align: center; box-shadow: var(--shadow-1); }
-.dash-horizon-item .h-val { font-family: var(--font-display); font-size: 22px; font-weight: 500; letter-spacing: -0.02em; margin: 0 0 2px; color: var(--text); font-variation-settings: "opsz" 72; }
-.dash-horizon-item .h-lbl { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin: 0; }
-.dash-horizon-item.h-danger .h-val { color: var(--danger); }
-.dash-horizon-item.h-warn .h-val { color: var(--warn); }
-.dash-horizon-item.h-ok .h-val { color: var(--ok); }
 
 /* Suivi véhicules */
 .dash-vehicle-list { display: flex; flex-direction: column; gap: 8px; }
@@ -1719,68 +1307,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 .dash-vehicle-row .vehicle-info { flex: 1; min-width: 0; }
 .dash-vehicle-row .v-name { font-weight: 600; font-size: 14px; color: var(--text); margin: 0 0 3px; }
 .dash-vehicle-row .v-sub { font-size: 12px; color: var(--text-3); margin: 0; }
-.vehicle-tag { font-size: 11.5px; color: var(--text-3); }
-
-/* Motivation inline (sur tâche en vue détaillée) */
-.motivation-banner {
-  margin: 12px 0;
-  padding: 12px 14px 12px 16px;
-  background: var(--accent-wash);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--r-sm);
-  font-size: 13px;
-  color: var(--text);
-  line-height: 1.5;
-  font-style: italic;
-}
-.motivation-banner::before {
-  content: '✨ ';
-  font-style: normal;
-  margin-right: 4px;
-}
-
-/* v20 : message motivant contextuel — désormais unique zone dynamique, logée
-   dans la bulle "Aujourd'hui". Ton calme, humain, non culpabilisant. Variantes
-   colorées selon l'état global (retard critique / retard / aujourd'hui / à venir / calme). */
-.today-motivation {
-  margin: 0 0 10px;
-  padding: 14px 16px;
-  border-radius: var(--r-md);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 13.5px;
-  color: var(--text);
-  line-height: 1.5;
-}
-.today-motivation .tm-emoji {
-  font-size: 20px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-.today-motivation .tm-text { flex: 1; }
-.today-motivation.tm-calm {
-  background: var(--ok-bg);
-  border-color: var(--ok-border);
-  color: var(--text);
-}
-.today-motivation.tm-soon {
-  background: var(--info-bg);
-  border-color: var(--info-border);
-  color: var(--text);
-}
-.today-motivation.tm-late {
-  background: var(--warn-bg);
-  border-color: var(--warn-border);
-  color: var(--text);
-}
-.today-motivation.tm-empty {
-  background: var(--accent-wash);
-  border-color: var(--accent-soft);
-  color: var(--text);
-}
+.vehicle-tag { font-size: 11px; color: var(--text-3); }
 
 /* Sélecteur de thème (Paramètres) */
 .theme-selector {
@@ -1793,7 +1320,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   border: 1.5px solid var(--border);
   background: var(--surface);
   border-radius: var(--r-sm);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-2);
   cursor: pointer;
@@ -1804,7 +1331,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   gap: 7px;
 }
 .theme-option svg { width: 20px; height: 20px; }
-.theme-option:hover { border-color: var(--border-strong); background: var(--surface-2); }
 .theme-option.selected {
   border-color: var(--accent);
   background: var(--accent-wash);
@@ -1825,7 +1351,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   border: 1.5px solid var(--border);
   background: var(--surface);
   border-radius: var(--r-sm);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-2);
   cursor: pointer;
@@ -1868,7 +1394,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   background: linear-gradient(135deg, rgba(255,255,255,0.25), transparent 55%);
   pointer-events: none;
 }
-.fab:hover { transform: scale(1.08) rotate(90deg); box-shadow: 0 10px 28px rgba(200,90,48,0.38), 0 14px 40px rgba(200,90,48,0.22); }
 .fab:active { transform: scale(0.95); }
 .fab svg { width: 26px; height: 26px; position: relative; z-index: 1; stroke-width: 2.5; }
 
@@ -1877,8 +1402,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   background: var(--ok-bg);
   color: var(--ok);
 }
-.icon-btn.notif-active:hover { background: var(--ok-bg); color: var(--ok); }
-
 /* Toast */
 .toast {
   position: fixed;
@@ -1937,7 +1460,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   backdrop-filter: blur(10px);
   transition: all var(--dur-fast) var(--ease-out);
 }
-.photo-viewer .close:hover { background: rgba(255,255,255,0.25); transform: rotate(90deg); }
 .photo-viewer .close svg { width: 22px; height: 22px; }
 .photo-viewer .caption {
   position: absolute;
@@ -1956,7 +1478,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
 /* Responsive */
 @media (max-width: 540px) {
   .app { padding: 12px 11px 112px; }
-  .hero h1 { font-size: 22px; line-height: 1.15; }
   .hero { margin: 4px 0 14px; }
   .hero .greeting { font-size: 12px; margin: 0 0 4px; }
   .row { padding: 13px 14px 13px 16px; gap: 11px; }
@@ -1978,30 +1499,24 @@ body.modal-open { overflow: hidden; touch-action: none; }
   .modal .btn-row { gap: 8px; }
   .modal .btn-row .btn { flex: 1; justify-content: center; min-width: 0; }
 
-  .stats { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
-  .stat { padding: 10px 10px 9px; }
-  .stat .val { font-size: 22px; }
-  .stat .lbl { font-size: 9.5px; margin-top: 5px; }
-  .stat::after { width: 60px; height: 60px; top: -22px; right: -22px; }
   .fab { width: 54px; height: 54px; right: 18px; bottom: calc(82px + env(safe-area-inset-bottom)); }
   .fab svg { width: 22px; height: 22px; }
 
   /* Header : compacter pour laisser de la place */
   .header { gap: 8px; margin-bottom: 10px; align-items: center; }
-  .logo-mark { width: 40px; height: 40px; border-radius: 11px; }
+  .logo-mark { width: 40px; height: 40px; border-radius: var(--r-sm); }
   .logo-mark svg { width: 32px; height: 32px; }
   .brand-text .app-name { font-size: 18px; }
-  .brand-text .place { font-size: 10.5px; }
+  .brand-text .place { font-size: 11px; }
   .header-right { gap: 6px; }
   .header-right .btn { padding: 7px 10px; font-size: 12px; }
   .header-right .btn svg { width: 14px; height: 14px; }
-  .header-right .icon-btn { width: 34px; height: 34px; }
   .header-right .icon-btn svg { width: 16px; height: 16px; }
 
   /* Tabs : icônes plus petites et texte réduit */
   .tabs { padding: 6px 4px calc(10px + env(safe-area-inset-bottom)) 4px; }
   .tabs-inner { gap: 0; }
-  .tab { padding: 6px 2px 5px; font-size: 9.5px; letter-spacing: 0; }
+  .tab { padding: 6px 2px 5px; font-size: 11px; letter-spacing: 0; }
   .tab svg { width: 19px; height: 19px; }
   .tab span.tab-label { display: inline; }
 
@@ -2013,7 +1528,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     row-gap: 8px;
   }
   .sort-row select { font-size: 13px; }
-  .chips-row .filter { font-size: 12.5px; padding: 7px 13px; }
 
   /* Lignes de tâches : empile titre / catégorie / échéance verticalement pour ne rien tronquer */
   .row .title { margin-bottom: 5px; }
@@ -2042,27 +1556,18 @@ body.modal-open { overflow: hidden; touch-action: none; }
   .ob-fields { gap: 12px; margin-bottom: 20px; }
   .ob-next { padding: 13px 18px; font-size: 14px; }
 
-  /* Rename overlay sur mobile */
-  .rename-overlay { padding: 12px; }
-  .rename-modal { padding: 20px 18px; }
 }
 
 /* Très petit mobile : encore plus compact */
 @media (max-width: 400px) {
   .app { padding: 10px 9px 112px; }
-  .stats { gap: 6px; }
-  .stat { padding: 9px 8px 8px; }
-  .stat .val { font-size: 20px; }
-  .stat .lbl { font-size: 9px; letter-spacing: 0.05em; }
 
   /* Cache les libellés "Export" et "Import" — on garde juste les icônes */
   .header-right .btn .btn-label { display: none; }
   .header-right .btn { padding: 8px; min-width: 34px; justify-content: center; }
 
   /* Tabs : police plus compacte sur très petit mobile */
-  .tab { font-size: 9px; }
 
-  .hero h1 { font-size: 20px; }
 
   /* Logo un poil plus compact */
   .logo-mark { width: 38px; height: 38px; }
@@ -2073,23 +1578,17 @@ body.modal-open { overflow: hidden; touch-action: none; }
 /* Très très petit (iPhone SE 1ère génération / anciens) */
 @media (max-width: 340px) {
   .app { padding: 8px 7px 110px; }
-  .hero h1 { font-size: 18px; }
-  .header-right .icon-btn { width: 32px; height: 32px; }
   .header-right .icon-btn svg { width: 15px; height: 15px; }
   .header-right .btn { padding: 7px; }
   .header-right { gap: 5px; }
   .tab svg { width: 17px; height: 17px; }
-  .tab { font-size: 8.5px; }
-  .stat .val { font-size: 18px; }
-  .stat .lbl { font-size: 8.5px; }
-  .stat { padding: 8px 6px 7px; }
 }
 
 /* Print styles for PDF export */
 @media print {
   body { background: white; padding: 0; background-image: none; }
   body::before { display: none; }
-  .app, .header, .hero, .tabs, .search-bar, .stats, .filters, .chips-row, .sort-row, .archive-search-bar, .cat-panel, .section-label, .today-motivation, .fab, .toast, .modal-bg, .photo-viewer { display: none !important; }
+  .app, .header, .hero, .tabs, .search-bar, .stats, .filters, .chips-row, .sort-row, .archive-search-bar, .cat-panel, .section-label, .fab, .toast, .modal-bg, .photo-viewer { display: none !important; }
   #print-area { display: block !important; padding: 30px; color: black; background: white; font-family: 'Georgia', serif; }
   #print-area * { color: black !important; }
   #print-area h1 { font-size: 24px; margin: 0 0 6px; font-family: 'Georgia', serif; }
@@ -2099,13 +1598,13 @@ body.modal-open { overflow: hidden; touch-action: none; }
   #print-area table { width: 100%; font-size: 12px; border-collapse: collapse; margin-bottom: 12px; }
   #print-area table td { padding: 5px 8px; border-bottom: 0.5px solid #ddd; vertical-align: top; }
   #print-area table td:first-child { color: #666 !important; width: 35%; }
-  #print-area .entry-block { page-break-inside: avoid; margin-bottom: 16px; padding: 12px; border: 1px solid #ccc; border-radius: 6px; }
+  #print-area .entry-block { page-break-inside: avoid; margin-bottom: 16px; padding: 12px; border: 1px solid #ccc; border-radius: var(--r-xs); }
   #print-area .entry-date { font-weight: 600; font-size: 13px; margin: 0 0 6px; }
   #print-area .entry-note { font-size: 12px; white-space: pre-wrap; margin: 6px 0; font-family: 'Georgia', serif; }
   #print-area .entry-cost { font-size: 12px; font-weight: 600; }
   #print-area .entry-photos { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   #print-area .entry-photos img { max-width: 200px; max-height: 200px; object-fit: contain; border: 1px solid #ccc; }
-  #print-area .photo-cap { font-size: 10px; color: #666 !important; text-align: center; }
+  #print-area .photo-cap { font-size: 11px; color: #666 !important; text-align: center; }
 }
 /* ------ ONBOARDING ------ */
 .onboarding-overlay {
@@ -2130,7 +1629,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 }
 .ob-logo {
   width: 64px; height: 64px;
-  border-radius: 18px;
+  border-radius: var(--r-md);
   background: linear-gradient(145deg, var(--accent) 0%, var(--accent-2) 100%);
   display: flex; align-items: center; justify-content: center;
   box-shadow: var(--shadow-accent);
@@ -2183,7 +1682,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   box-shadow: var(--shadow-accent);
   transition: background var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
 }
-.ob-next:hover { background: var(--accent-2); transform: translateY(-1px); }
 .ob-next svg { width: 16px; height: 16px; }
 .ob-back {
   padding: 12px 18px;
@@ -2192,7 +1690,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   font-size: 14px; font-weight: 500; cursor: pointer;
   transition: all var(--dur-fast) var(--ease-out);
 }
-.ob-back:hover { background: var(--surface-2); }
 .ob-actions { display: flex; gap: 10px; }
 .ob-actions .ob-next { flex: 1; }
 
@@ -2219,7 +1716,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   user-select: none;
   font-size: 13px; font-weight: 500; color: var(--text-2);
 }
-.ob-equip-item:hover { border-color: var(--border-strong); color: var(--text); }
 .ob-equip-item.selected {
   border-color: var(--accent);
   background: var(--accent-wash);
@@ -2228,7 +1724,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 .ob-equip-check {
   width: 18px; height: 18px; flex-shrink: 0;
   border: 1.5px solid var(--border-strong);
-  border-radius: 5px;
+  border-radius: var(--r-xs);
   display: flex; align-items: center; justify-content: center;
   transition: all var(--dur-fast) var(--ease-out);
 }
@@ -2267,6 +1763,34 @@ body.modal-open { overflow: hidden; touch-action: none; }
   margin: 0; line-height: 1.45;
 }
 
+/* Actions de la fiche tâche — une action principale, le reste replié */
+.task-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.task-action-main {
+  width: 100%;
+  justify-content: center;
+  min-height: 48px;
+  font-size: 15px;
+}
+.task-actions-row { display: flex; gap: 8px; }
+.task-actions-row .btn { flex: 1; justify-content: center; min-height: 44px; }
+.btn-more { flex: 0 0 auto !important; width: 44px; padding: 0; }
+.btn-more svg { width: 18px; height: 18px; }
+.btn-more.active { background: var(--surface-3); border-color: var(--border-strong); }
+.task-more-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+.task-more-menu[hidden] { display: none; }
+
 /* Settings links (À propos, Mentions légales, etc.) */
 .settings-links { display: flex; flex-direction: column; gap: 8px; }
 .settings-link {
@@ -2280,57 +1804,75 @@ body.modal-open { overflow: hidden; touch-action: none; }
   text-align: left;
   transition: all var(--dur-fast) var(--ease-out);
 }
-.settings-link:hover { background: var(--surface-3); border-color: var(--border-strong); }
 .settings-link svg { width: 16px; height: 16px; color: var(--text-3); flex-shrink: 0; }
-
+.settings-link.settings-link-danger { color: var(--danger); }
 /* Info pages (À propos, Mentions, Confidentialité) */
 .info-page p { margin: 0 0 14px; }
 .info-page p:last-child { margin-bottom: 0; }
 .info-page strong { color: var(--text); }
 
-/* Rename overlay */
-.rename-overlay {
-  position: fixed; inset: 0;
-  background: rgba(42, 35, 29, 0.5);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 150;
-  display: flex; align-items: center; justify-content: center;
-  padding: 20px;
-  animation: fadeIn var(--dur-fast) var(--ease-out);
-}
-.rename-modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: 24px 24px 20px;
-  width: 100%; max-width: 360px;
-  box-shadow: var(--shadow-3);
-}
-.rename-modal h3 {
-  font-family: var(--font-display);
-  font-size: 18px; font-weight: 500; margin: 0 0 16px;
-  letter-spacing: -0.02em;
-  font-variation-settings: "opsz" 72;
-}
-.rename-modal input {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  background: var(--bg);
-  font-size: 15px; color: var(--text);
-  margin-bottom: 16px;
-  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
-}
-.rename-modal input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 4px var(--accent-soft);
-}
-.rename-actions { display: flex; gap: 8px; justify-content: flex-end; }
 
 #print-area { display: none; }
+
+/* v26 : les effets de survol n'ont de sens qu'au pointeur. Au doigt, un :hover
+   posé au tap reste actif jusqu'au tap suivant — d'où ce regroupement. */
+@media (hover: hover) {
+  .brand-text .place:hover {
+    background: var(--accent-wash);
+    color: var(--accent-2);
+  }
+  .brand-text .place:hover::after { opacity: 1; }
+  .btn:hover { background: var(--surface-2); border-color: var(--border-strong); transform: translateY(-1px); box-shadow: var(--shadow-2); }
+  .btn-primary:hover { background: var(--accent-2); border-color: var(--accent-2); color: white; }
+  .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+  .icon-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
+  .tab:hover { color: var(--text-2); }
+  .cal-day:hover { box-shadow: var(--shadow-2); border-color: var(--border-strong); }
+  .cal-detail-row:hover { background: var(--surface-2); }
+  .search-bar select:hover { border-color: var(--border-strong); }
+  .filter-toggle:hover { background: var(--surface-2); border-color: var(--border-strong); }
+  .sort-row select:hover { border-color: var(--border-strong); }
+  .filter:hover { background: var(--surface-2); color: var(--text); border-color: var(--border-strong); }
+  .row:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-2);
+    border-color: var(--border-strong);
+  }
+  .row:hover::before {
+    top: 8px; bottom: 8px;
+    width: 5px;
+  }
+  .check-btn:hover {
+    background: var(--ok);
+    border-color: var(--ok);
+    color: white;
+    transform: scale(1.08);
+  }
+  .modal-close-x:hover {
+    background: var(--surface-2);
+    border-color: var(--border-strong);
+    color: var(--text);
+    transform: rotate(90deg);
+  }
+  .modal table a:hover { text-decoration: underline; }
+  .reminder-item .del:hover { opacity: 1; }
+  .entry .entry-photo:hover { transform: scale(1.05); }
+  .entry .file-chip:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .photos-form .ph-thumb .rm:hover { background: var(--danger); transform: scale(1.1); }
+  .dash-cat-row:hover { transform: translateY(-1px); box-shadow: var(--shadow-2); }
+  .theme-option:hover { border-color: var(--border-strong); background: var(--surface-2); }
+  .fab:hover { transform: scale(1.08) rotate(90deg); box-shadow: 0 10px 28px rgba(200,90,48,0.38), 0 14px 40px rgba(200,90,48,0.22); }
+  .icon-btn.notif-active:hover { background: var(--ok-bg); color: var(--ok); }
+  .photo-viewer .close:hover { background: rgba(255,255,255,0.25); transform: rotate(90deg); }
+  .ob-next:hover { background: var(--accent-2); transform: translateY(-1px); }
+  .ob-back:hover { background: var(--surface-2); }
+  .ob-equip-item:hover { border-color: var(--border-strong); color: var(--text); }
+  .settings-link:hover { background: var(--surface-3); border-color: var(--border-strong); }
+  .settings-link.settings-link-danger:hover { background: var(--danger-bg); border-color: var(--danger-border); }
+}
 </style>
 
 </head>
@@ -2365,18 +1907,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
       <button class="icon-btn has-notif" id="btn-notif" title="Activer les notifications push">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
       </button>
-      <button class="btn btn-sm" id="btn-gdrive" title="Sauvegarder sur Google Drive">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.5H2l4-7h12z"/><path d="M5.5 16.5 9 10"/><path d="M18.5 16.5 15 10"/><path d="M9 10h6"/></svg>
-        <span class="btn-label">Drive</span>
-      </button>
-      <button class="btn btn-sm" id="btn-export" title="Exporter tes données">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        <span class="btn-label">Export</span>
-      </button>
-      <button class="btn btn-sm" id="btn-import" title="Importer des données">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <span class="btn-label">Import</span>
-      </button>
       <button class="icon-btn" id="btn-settings" title="Paramètres">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
@@ -2393,15 +1923,13 @@ body.modal-open { overflow: hidden; touch-action: none; }
 
   <!-- Vue Tâches -->
   <div class="view active" id="view-tasks">
-    <!-- v20 : la bulle verte sous "Bonjour" a été supprimée (doublon avec les stats).
-         Les messages d'encouragement / anticipation sont désormais rendus UNIQUEMENT
-         dans la bulle "Aujourd'hui" (voir renderTasks → todayMotivationBlock). -->
-
-    <!-- v19 : stats d'abord (priorité aux informations clés) -->
+    <!-- v26 : bandeau de compteurs compact. Avant, quatre grosses tuiles sur fonds
+         saturés occupaient ~250 px et repoussaient la première tâche hors de
+         l'écran. Le fond est désormais neutre : seule la valeur porte la couleur. -->
     <div class="stats">
       <div class="stat late"><p class="val" id="stat-late">0</p><p class="lbl">En retard</p></div>
       <div class="stat week"><p class="val" id="stat-week">0</p><p class="lbl">Cette sem.</p></div>
-      <div class="stat primary"><p class="val" id="stat-month">0</p><p class="lbl">Sous 30 j</p></div>
+      <div class="stat month"><p class="val" id="stat-month">0</p><p class="lbl">Sous 30 j</p></div>
       <div class="stat"><p class="val" id="stat-total">0</p><p class="lbl">Au total</p></div>
     </div>
 
@@ -2411,7 +1939,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="search" id="search-input" placeholder="Rechercher…">
       </div>
-      <button class="filter-toggle" id="filter-toggle" title="Filtrer par catégorie" aria-expanded="false">
+      <button class="filter-toggle" id="filter-toggle" title="Trier et filtrer" aria-expanded="false">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
         <span class="filter-badge" id="filter-badge" style="display:none;">0</span>
       </button>
@@ -2424,20 +1952,22 @@ body.modal-open { overflow: hidden; touch-action: none; }
       <button class="filter" data-filter="soon">À venir (30j)</button>
       <button class="filter" data-filter="prep">À préparer</button>
     </div>
-    <!-- Sort row -->
-    <div class="sort-row">
-      <select id="sort-select">
-        <option value="due">Trier par échéance</option>
-        <option value="last">Trier par dernier passage</option>
-        <option value="title">Trier alphabétiquement</option>
-        <option value="cost">Trier par coût cumulé ↓</option>
-        <option value="passages">Trier par nb de passages ↓</option>
-      </select>
-    </div>
 
-    <!-- Category panel (collapsible) -->
+    <!-- v26 : le tri rejoint le panneau de filtres repliable. En pleine largeur
+         sous les chips, il occupait une rangée entière pour un réglage qu'on
+         change rarement. -->
     <div class="cat-panel" id="cat-panel">
-      <p class="cat-panel-label">Filtrer par catégorie</p>
+      <p class="cat-panel-label">Trier</p>
+      <div class="sort-row">
+        <select id="sort-select">
+          <option value="due">Par échéance</option>
+          <option value="last">Par dernier passage</option>
+          <option value="title">Alphabétiquement</option>
+          <option value="cost">Par coût cumulé ↓</option>
+          <option value="passages">Par nombre de passages ↓</option>
+        </select>
+      </div>
+      <p class="cat-panel-label" style="margin-top:16px;">Filtrer par catégorie</p>
       <div class="cat-panel-grid" id="filters">
         <button class="filter" data-filter="chauffage"><span class="dot" style="background: var(--cat-chauffage);"></span>Chauffage</button>
         <button class="filter" data-filter="solaire"><span class="dot" style="background: var(--cat-solaire);"></span>Solaire</button>
@@ -2603,16 +2133,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   </div>
 </div>
 
-<!-- Rename house modal (inline, triggered from place label) -->
-<div class="rename-overlay" id="rename-overlay" style="display:none;">
-  <div class="rename-modal">
-    <h3>Renommer la maison</h3>
-    <input type="text" id="rename-input" placeholder="Ex : Maison du Parc" autocomplete="off">
-    <div class="rename-actions">
-      <button class="btn" id="rename-cancel">Annuler</button>
-      <button class="btn btn-primary" id="rename-save">Enregistrer</button>
-    </div>
-  </div>
+</div>
 </div>
 
 <div id="print-area"></div>
@@ -2626,7 +2147,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 // fichier sw.js sur un serveur — ce qui n'est pas possible avec un fichier HTML local.
 
 (function() {
-  const APP_VERSION = 'v25';
+  const APP_VERSION = 'v26';
   const THEME_KEY = 'logis_theme';
   const STORAGE_KEY = 'logis_v14';
   const DB_NAME = 'logis_db';
@@ -2635,7 +2156,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
   const DAY = 86400000;
   const MAX_PHOTO_WIDTH = 1600;
   const PHOTO_QUALITY = 0.82;
-  const MAX_PHOTO_THUMB = 800; // for thumbnails stored in DB, compressed further
+  const MAX_PHOTO_THUMB = 800;
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB max per file
   const PHOTO_LABEL_PRESETS = ['Facture', 'Avant', 'Après', 'Plaque', 'Détail', 'Ticket'];
   const FILE_LABEL_PRESETS = ['Facture', 'Contrat', 'Devis', 'Garantie', 'Notice', 'Certificat'];
@@ -2894,123 +2415,11 @@ body.modal-open { overflow: hidden; touch-action: none; }
     return h.reduce((s,e) => s + e.cost, 0) / h.length;
   }
 
-  // ==================================================================
-  // v18 · Module IA invisible & messages dynamiques
-  // ==================================================================
-
-  // Coût attendu d'une tâche : priorité au coût estimé manuel, sinon moyenne historique
-  // Coût médian d'une tâche (plus robuste aux outliers que la moyenne)
-  function taskMedianCost(t) {
-    const costs = t.history.filter(e => e.cost != null).map(e => e.cost).sort((a,b) => a - b);
-    if (costs.length === 0) return null;
-    const mid = Math.floor(costs.length / 2);
-    return costs.length % 2 === 0 ? (costs[mid - 1] + costs[mid]) / 2 : costs[mid];
-  }
-
   // Label textuel de l'importance
   const importanceLabels = { 1: 'Basse', 2: 'Moyenne', 3: 'Critique' };
   function importanceDot(imp) {
     const color = imp === 3 ? 'var(--danger)' : imp === 2 ? 'var(--warn)' : 'var(--ok)';
     return '<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:' + color + ';margin-right:6px;vertical-align:middle;"></span>';
-  }
-
-  // Score d'entretien de la maison (0-100).
-  // Pondéré par l'importance : une tâche critique en retard pèse plus lourd.
-  function computeMaintenanceScore() {
-    const active = tasks.filter(t => !t.archived);
-    if (active.length === 0) return { score: 100, onTime: 0, late: 0, upcoming: 0, critical: 0 };
-    let totalWeight = 0, earnedWeight = 0;
-    let lateCount = 0, upcomingCount = 0, onTimeCount = 0, criticalLate = 0;
-    active.forEach(t => {
-      const imp = t.importance || 1;
-      const w = imp; // poids = importance
-      totalWeight += w;
-      const d = daysUntil(t.due);
-      if (d < 0) {
-        // En retard : pénalité croissante avec le retard (max -w, plancher à d <= -freq/2)
-        const penalty = Math.min(1, Math.abs(d) / Math.max(30, t.freq / 2));
-        earnedWeight += w * (1 - penalty);
-        lateCount++;
-        if (imp >= 3) criticalLate++;
-      } else if (d <= 7) {
-        earnedWeight += w * 0.85;
-        upcomingCount++;
-      } else {
-        earnedWeight += w;
-        onTimeCount++;
-      }
-    });
-    const score = Math.round((earnedWeight / totalWeight) * 100);
-    return { score, onTime: onTimeCount, late: lateCount, upcoming: upcomingCount, critical: criticalLate, total: active.length };
-  }
-
-  // Comparaison année courante vs année précédente (coûts réels)
-  function compareYears() {
-    const y = new Date().getFullYear();
-    const start = y + '-01-01', end = y + '-12-31';
-    const pStart = (y - 1) + '-01-01', pEnd = (y - 1) + '-12-31';
-    let curr = 0, prev = 0, currCount = 0, prevCount = 0;
-    tasks.filter(t => !t.archived).forEach(t => t.history.forEach(h => {
-      if (h.cost == null) return;
-      if (h.date >= start && h.date <= end) { curr += h.cost; currCount++; }
-      else if (h.date >= pStart && h.date <= pEnd) { prev += h.cost; prevCount++; }
-    }));
-    return { currYear: y, prevYear: y - 1, curr, prev, currCount, prevCount, diff: curr - prev, pct: prev > 0 ? ((curr - prev) / prev * 100) : null };
-  }
-
-  // Détection d'anomalies dans les dépenses (passage beaucoup plus cher que d'habitude)
-  function detectAnomalies() {
-    const anomalies = [];
-    tasks.filter(t => !t.archived).forEach(t => {
-      const costs = t.history.filter(h => h.cost != null);
-      if (costs.length < 3) return;
-      const median = taskMedianCost(t);
-      if (median == null || median === 0) return;
-      const last = costs.sort((a,b) => b.date.localeCompare(a.date))[0];
-      if (last.cost > median * 1.6 && (last.cost - median) >= 40) {
-        anomalies.push({ task: t, entry: last, median, ratio: last.cost / median });
-      }
-    });
-    return anomalies;
-  }
-
-  // Message motivant contextualisé à une tâche (selon échéance + importance)
-  function motivationForTask(t) {
-    const d = daysUntil(t.due);
-    const imp = t.importance || 1;
-    // Retard (sans punir)
-    if (d < 0) {
-      if (imp >= 3) return "En la faisant maintenant, tu évites un risque réel. C'est encore tout à fait rattrapable.";
-      if (imp >= 2) return "Pas de stress, un petit coup de pouce maintenant et c'est réglé.";
-      return "Tu passes peut-être à côté d'une petite économie — il n'est jamais trop tard.";
-    }
-    // Imminent (0-7 jours)
-    if (d === 0) return "Une petite action aujourd'hui = un souci en moins demain.";
-    if (d <= 3) return "Tu es à deux doigts de garder ta maison au top.";
-    if (d <= 7) return "Encore " + d + " jours avant la prochaine action, parfait pour t'organiser.";
-    // Calme
-    if (d <= 14) return "Tu avances bien, continue comme ça.";
-    if (d <= 30) return "Rien ne presse, tu es large. Prochaine échéance dans " + d + " jours.";
-    return "Tranquille. Cette tâche peut attendre.";
-  }
-
-  // Message valorisant après réalisation
-  function motivationAfterDone(t) {
-    const imp = t.importance || 1;
-    const pool = imp >= 3 ? [
-      "Bien joué ! Tu viens de sécuriser un point critique de ta maison.",
-      "Excellent réflexe. Ton futur toi te remerciera.",
-      "Une tâche essentielle de moins, une maison plus fiable."
-    ] : imp >= 2 ? [
-      "Bien joué ! Une tâche de moins, une maison plus sereine.",
-      "Tu viens d'éviter une dépense inutile.",
-      "Tu prolonges la vie de ton équipement. Propre."
-    ] : [
-      "Petit geste, grand effet. Bien joué !",
-      "Bien joué ! Ta maison respire mieux.",
-      "Une tâche cochée, un confort préservé."
-    ];
-    return pool[Math.floor(Math.random() * pool.length)];
   }
 
 
@@ -3183,10 +2592,13 @@ body.modal-open { overflow: hidden; touch-action: none; }
       else if (dd <= 7) week++;
       else if (dd <= 30) month++;
     });
-    document.getElementById('stat-late').textContent = late;
-    document.getElementById('stat-week').textContent = week;
-    document.getElementById('stat-month').textContent = month;
-    document.getElementById('stat-total').textContent = active.length;
+    // v26 : un compteur à zéro reste gris ; seule une valeur non nulle prend sa couleur.
+    [['stat-late', late], ['stat-week', week], ['stat-month', month], ['stat-total', active.length]]
+      .forEach(([id, n]) => {
+        const el = document.getElementById(id);
+        el.textContent = n;
+        el.classList.toggle('has-value', n > 0);
+      });
 
     // Hero dynamique selon l'état
     updateHero(late, week, month);
@@ -3221,15 +2633,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
 
     if (!groupBySection) {
       // Affichage plat : juste la liste triée
-      let firstFeatured = true;
-      filtered.forEach(t => {
-        const row = taskRow(t);
-        if (firstFeatured && currentFilter === 'all' && taskState(t).state !== 'late') {
-          row.classList.add('featured');
-          firstFeatured = false;
-        }
-        list.appendChild(row);
-      });
+      filtered.forEach(t => list.appendChild(taskRow(t)));
       return;
     }
 
@@ -3249,50 +2653,25 @@ body.modal-open { overflow: hidden; touch-action: none; }
       retard.forEach(t => list.appendChild(taskRow(t)));
     }
 
-    // v20 : Section "Aujourd'hui" — unique zone des messages dynamiques (encouragement,
-    // anticipation, rattrapage). La bulle motivante est toujours affichée en tête
-    // pour la vue "Toutes", quelle que soit la présence de tâches du jour. Sur un
-    // filtre restreint, on n'affiche la section que s'il y a vraiment des tâches
-    // aujourd'hui (pas de message motivant dans une vue filtrée).
-    const showTodaySection = currentFilter === 'all' || aujourdhui.length > 0;
-    if (showTodaySection) {
-      const todayLabel = aujourdhui.length
-        ? aujourdhui.length + (aujourdhui.length > 1 ? ' tâches' : ' tâche')
-        : 'rien au programme';
-      list.appendChild(sectionLabel('Aujourd\'hui', todayLabel));
-      if (currentFilter === 'all') {
-        const criticalLate = active.filter(t => d(t) < 0 && (t.importance || 1) >= 3).length;
-        list.appendChild(todayMotivationBlock(late, aujourdhui.length, week, month, criticalLate, active.length > 0));
-      }
+    // v26 : la section "Aujourd'hui" n'apparaît plus que s'il y a vraiment quelque
+    // chose à faire aujourd'hui. Avant, elle s'affichait toujours avec un libellé
+    // "rien au programme" et une bulle d'encouragement — deux éléments qui
+    // occupaient le haut de l'écran sans rien apprendre.
+    if (aujourdhui.length) {
+      list.appendChild(sectionLabel('Aujourd\'hui', aujourdhui.length + (aujourdhui.length > 1 ? ' tâches' : ' tâche')));
       aujourdhui.forEach(t => list.appendChild(taskRow(t)));
     }
 
     // Section "À venir" (cette semaine)
     if (semaine.length) {
       list.appendChild(sectionLabel('À venir', semaine.length + ' cette semaine'));
-      let first = true;
-      semaine.forEach(t => {
-        const row = taskRow(t);
-        if (first && aujourdhui.length === 0 && retard.length === 0) {
-          row.classList.add('featured');
-          first = false;
-        }
-        list.appendChild(row);
-      });
+      semaine.forEach(t => list.appendChild(taskRow(t)));
     }
 
     // Section "Plus tard"
     if (plusTard.length) {
       list.appendChild(sectionLabel('Plus tard', plusTard.length + (plusTard.length > 1 ? ' tâches' : ' tâche')));
-      let first = true;
-      plusTard.forEach(t => {
-        const row = taskRow(t);
-        if (first && aujourdhui.length === 0 && retard.length === 0 && semaine.length === 0) {
-          row.classList.add('featured');
-          first = false;
-        }
-        list.appendChild(row);
-      });
+      plusTard.forEach(t => list.appendChild(taskRow(t)));
     }
   }
 
@@ -3322,88 +2701,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
 
     // v20 : le message motivant contextuel n'est plus rendu ici.
     // Il est intégré à la bulle "Aujourd'hui" dans renderTasks() (todayMotivationBlock).
-  }
-
-  // v19 : logique de décision pour le message motivant de la vue principale.
-  // Basé sur l'état global (retard / aujourd'hui / <30 jours), toujours en tutoiement,
-  // ton humain, jamais culpabilisant, orienté bénéfice utilisateur.
-  //
-  // Pseudo-code :
-  //   si aucune tâche active → invitation douce à démarrer
-  //   si tâches critiques en retard (importance ≥ 3) → avertissement bienveillant, priorité sécurité
-  //   si tâches en retard non critiques → rattrapage détendu
-  //   si tâches à faire aujourd'hui → encouragement à agir tout de suite
-  //   si tâches dans les 7 prochains jours → anticipation, rien ne presse
-  //   si tâches dans les 30 jours → respiration, tout est prévu
-  //   sinon → tout est sous contrôle, compliment discret
-  //
-  // Un pool de variantes par état évite la répétition d'une ouverture à l'autre.
-  function motivationForView(late, today, week, month, criticalLate) {
-    // Variantes pour éviter la redondance — on tire au hasard dans chaque pool.
-    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-
-    if (criticalLate > 0) {
-      return { kind: 'late', emoji: '🛡️', text: pick([
-        "Un ou deux points sensibles t'attendent — cinq minutes aujourd'hui et c'est réglé.",
-        "Quelques tâches importantes à rattraper : rien de grave, juste le bon moment pour agir.",
-        "Ta sécurité passe avant tout : un petit geste maintenant évite bien des soucis plus tard."
-      ])};
-    }
-    if (late > 0) {
-      return { kind: 'late', emoji: '🌿', text: pick([
-        late === 1 ? "Une tâche t'attend depuis un moment. Rien d'urgent, prends ton temps."
-                   : late + " petites tâches à rattraper — prends-les dans l'ordre, tranquille.",
-        "Pas de stress : quelques minutes suffisent pour remettre tout à jour.",
-        "Un petit coup de pouce et ta maison est à nouveau au top."
-      ])};
-    }
-    if (today > 0) {
-      return { kind: 'soon', emoji: '✨', text: pick([
-        today === 1 ? "Une tâche à cocher aujourd'hui — et c'est plié."
-                    : today + " tâches à cocher aujourd'hui — tu peux tout boucler d'un coup.",
-        "Une petite action aujourd'hui = un souci en moins demain.",
-        "Tu es à deux doigts de garder ta maison au top."
-      ])};
-    }
-    if (week > 0) {
-      return { kind: 'soon', emoji: '📅', text: pick([
-        "Quelques passages se profilent dans la semaine — rien qui presse.",
-        "Tu as de quoi anticiper cette semaine, sans te précipiter.",
-        week + " tâche" + (week > 1 ? 's' : '') + " prévue" + (week > 1 ? 's' : '') + " cette semaine. Parfait pour t'organiser."
-      ])};
-    }
-    if (month > 0) {
-      return { kind: 'calm', emoji: '🌱', text: pick([
-        "Rien ne presse. Tu as de la marge ce mois-ci.",
-        "Tu avances bien — profite d'une semaine tranquille.",
-        "Rien d'urgent au programme. Tu peux respirer."
-      ])};
-    }
-    return { kind: 'calm', emoji: '🏡', text: pick([
-      "Tout est sous contrôle. Profite de ta maison.",
-      "Ta maison tourne rond — rien à signaler dans les 30 prochains jours.",
-      "Belle régularité ! Tu peux souffler, tout est calé."
-    ])};
-  }
-
-  // v20 : bulle dynamique dans la zone "Aujourd'hui" — unique endroit où apparaissent
-  // les messages d'encouragement / anticipation / rattrapage. Ton humain, non culpabilisant,
-  // tutoiement partout. Fallback doux pour une app vide.
-  function todayMotivationBlock(late, todayCount, week, month, criticalLate, hasAnyTask) {
-    const el = document.createElement('div');
-    if (!hasAnyTask) {
-      el.className = 'today-motivation tm-empty';
-      el.innerHTML =
-        '<div class="tm-emoji">🌾</div>' +
-        '<div class="tm-text">Bienvenue — ajoute ta première tâche pour commencer à suivre ta maison.</div>';
-      return el;
-    }
-    const msg = motivationForView(late, todayCount, week, month, criticalLate);
-    el.className = 'today-motivation tm-' + msg.kind;
-    el.innerHTML =
-      '<div class="tm-emoji">' + msg.emoji + '</div>' +
-      '<div class="tm-text">' + escapeHtml(msg.text) + '</div>';
-    return el;
   }
 
   function taskRow(t) {
@@ -3453,7 +2750,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<p class="title"><span class="title-text">' + escapeHtml(t.title) + '</span>' + iconsHtml + '</p>' +
         '<p class="meta">' +
           '<span>' + dueLabel + '</span>' +
-          (t.vehicle ? '<span class="meta-sep"></span><span class="vehicle-tag">🚗 ' + escapeHtml(t.vehicle) + '</span>' : '') +
+          (t.vehicle ? '<span class="meta-sep"></span><span class="vehicle-tag">' + escapeHtml(t.vehicle) + '</span>' : '') +
         '</p>' +
       '</div>' +
       '<div class="actions">' +
@@ -3475,14 +2772,17 @@ body.modal-open { overflow: hidden; touch-action: none; }
     return dd + ' ' + months[mo-1] + (sameYear ? '' : ' ' + y);
   }
 
-  // ---------- Render Dashboard (v18) ----------
+  // ---------- Render Dashboard ----------
+  // v26 : le tableau de bord ne répond plus qu'à une question — combien ça coûte,
+  // et où. Le score d'entretien, les anomalies, la comparaison d'années, les KPI
+  // "En chiffres" et "Horizon à venir" ont été retirés : les trois premiers
+  // n'étaient pas actionnables, les deux derniers recalculaient les compteurs
+  // déjà affichés en tête de l'onglet Tâches.
   function renderDashboard() {
     const c = document.getElementById('dashboard-content');
     const active = tasks.filter(t => !t.archived);
+    const currentYear = new Date().getFullYear();
 
-    // Cost this year
-    // v21 fix : on utilisait toISOString().slice(0,10) qui passe par UTC ;
-    // remplacé par iso() qui formate en local (cf. fix global ligne 2563).
     const yearStart = new Date(); yearStart.setMonth(0, 1); yearStart.setHours(0,0,0,0);
     const yearKey = iso(yearStart);
     let costYear = 0, countYear = 0;
@@ -3490,40 +2790,17 @@ body.modal-open { overflow: hidden; touch-action: none; }
       if (h.date >= yearKey && h.cost != null) { costYear += h.cost; countYear++; }
     }));
 
-    // Cost last 12 months
     const yearAgo = new Date(); yearAgo.setFullYear(yearAgo.getFullYear() - 1); yearAgo.setHours(0,0,0,0);
     const yearAgoKey = iso(yearAgo);
-    let cost12m = 0, count12m = 0;
-    active.forEach(t => t.history.forEach(h => {
-      if (h.date >= yearAgoKey && h.cost != null) { cost12m += h.cost; count12m++; }
-    }));
 
-    // Total historical
-    let costTotal = 0, countTotal = 0;
-    active.forEach(t => t.history.forEach(h => {
-      if (h.cost != null) { costTotal += h.cost; countTotal++; }
-    }));
-
-    // By category (12m)
     const byCat = {};
     active.forEach(t => t.history.forEach(h => {
-      if (h.date >= yearAgoKey && h.cost != null) {
-        byCat[t.cat] = (byCat[t.cat] || 0) + h.cost;
-      }
+      if (h.date >= yearAgoKey && h.cost != null) byCat[t.cat] = (byCat[t.cat] || 0) + h.cost;
     }));
     const catSorted = Object.entries(byCat).sort((a,b) => b[1] - a[1]);
     const catMax = catSorted.length > 0 ? catSorted[0][1] : 1;
 
-    // Top 5 tasks by cost
-    const topTasks = active.map(t => ({ t, cost: taskTotalCost(t) }))
-      .filter(x => x.cost > 0).sort((a,b) => b.cost - a.cost).slice(0, 5);
-
-    const currentYear = new Date().getFullYear();
-
-    // v18 : Hero avec score d'entretien
-    const scoreData = computeMaintenanceScore();
-    const scoreColor = scoreData.score >= 85 ? 'var(--ok)' : scoreData.score >= 65 ? 'var(--warn)' : 'var(--danger)';
-    const scoreLabel = scoreData.score >= 85 ? 'Excellent' : scoreData.score >= 70 ? 'Bon' : scoreData.score >= 50 ? 'À soigner' : 'À rattraper';
+    const hasAnyCost = active.some(t => t.history.some(h => h.cost != null));
 
     let html = '<div class="dash-hero">' +
       '<p class="lbl">Dépenses ' + currentYear + '</p>' +
@@ -3531,68 +2808,17 @@ body.modal-open { overflow: hidden; touch-action: none; }
       '<p class="sub">' + countYear + ' passage' + (countYear > 1 ? 's' : '') + ' enregistré' + (countYear > 1 ? 's' : '') + ' cette année</p>' +
     '</div>';
 
-    // v18 : Score d'entretien (carte visuelle)
-    html += '<div class="dash-score" style="--score-color:' + scoreColor + ';">' +
-      '<div class="score-ring">' +
-        '<svg viewBox="0 0 100 100" style="width:74px;height:74px;">' +
-          '<circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="8"/>' +
-          '<circle cx="50" cy="50" r="42" fill="none" stroke="' + scoreColor + '" stroke-width="8" stroke-linecap="round" ' +
-            'stroke-dasharray="' + (2 * Math.PI * 42) + '" ' +
-            'stroke-dashoffset="' + (2 * Math.PI * 42 * (1 - scoreData.score / 100)) + '" ' +
-            'transform="rotate(-90 50 50)"/>' +
-        '</svg>' +
-        '<span class="score-num">' + scoreData.score + '</span>' +
-      '</div>' +
-      '<div class="score-body">' +
-        '<p class="score-title">Score d\'entretien · <em>' + scoreLabel + '</em></p>' +
-        '<p class="score-sub">' + scoreData.onTime + ' à jour · ' + scoreData.upcoming + ' à venir · ' + scoreData.late + ' à rattraper</p>' +
-      '</div>' +
-    '</div>';
-
-    // v18 : Comparaison année courante / précédente
-    const comp = compareYears();
-    if (comp.prev > 0) {
-      const diffSign = comp.diff >= 0 ? '+' : '';
-      const pctStr = comp.pct != null ? ' (' + diffSign + Math.round(comp.pct) + '%)' : '';
-      const color = comp.diff > 0 ? 'var(--warn)' : 'var(--ok)';
-      html += '<div class="dash-section"><h3>Comparaison <em>' + comp.prevYear + ' → ' + comp.currYear + '</em></h3>' +
-        '<div class="dash-compare">' +
-          '<div class="compare-col"><p class="c-lbl">' + comp.prevYear + '</p><p class="c-val">' + fmtEur(comp.prev) + '</p><p class="c-sub">' + comp.prevCount + ' passage' + (comp.prevCount > 1 ? 's' : '') + '</p></div>' +
-          '<div class="compare-arrow" style="color:' + color + ';">' + (comp.diff >= 0 ? '↑' : '↓') + '</div>' +
-          '<div class="compare-col"><p class="c-lbl">' + comp.currYear + '</p><p class="c-val">' + fmtEur(comp.curr) + '</p><p class="c-sub">' + comp.currCount + ' passage' + (comp.currCount > 1 ? 's' : '') + '</p></div>' +
-        '</div>' +
-        '<p class="compare-delta" style="color:' + color + ';">' + diffSign + fmtEur(comp.diff) + pctStr + ' vs. ' + comp.prevYear + '</p>' +
+    // Sans le moindre coût saisi, toutes les sections suivantes seraient vides :
+    // on affiche une seule explication plutôt qu'une pile de zéros.
+    if (!hasAnyCost) {
+      html += '<div class="empty">' +
+        'Aucun coût enregistré pour l\'instant.<br>' +
+        '<small>Renseigne le coût quand tu ajoutes un passage : le suivi budgétaire apparaîtra ici.</small>' +
       '</div>';
+      c.innerHTML = html;
+      return;
     }
 
-    // v20.1 : section "Argent économisé" retirée du tableau de bord.
-
-    // v18 : Anomalies détectées
-    const anomalies = detectAnomalies();
-    if (anomalies.length > 0) {
-      html += '<div class="dash-section"><h3>Anomalies <em>repérées</em></h3><div class="dash-anomalies">';
-      anomalies.slice(0, 3).forEach(a => {
-        html += '<div class="anomaly-row">' +
-          '<span class="anomaly-icon">⚠️</span>' +
-          '<div class="anomaly-body">' +
-            '<p class="a-title">' + escapeHtml(a.task.title) + '</p>' +
-            '<p class="a-sub">Dernier passage à ' + fmtEur(a.entry.cost) + ' (médiane : ' + fmtEur(Math.round(a.median)) + '). Vérifie la facture si tu ne l\'as pas encore fait.</p>' +
-          '</div>' +
-        '</div>';
-      });
-      html += '</div></div>';
-    }
-
-    // v20.1 : section "Suggestions personnalisées" retirée du tableau de bord.
-
-    // 3 stats secondaires
-    html += '<div class="stats">' +
-      '<div class="stat"><p class="val">' + fmtEur(cost12m) + '</p><p class="lbl">12 mois glissants</p></div>' +
-      '<div class="stat"><p class="val">' + count12m + '</p><p class="lbl">Passages (12 m)</p></div>' +
-      '<div class="stat"><p class="val">' + fmtEur(costTotal) + '</p><p class="lbl">Total historique</p></div>' +
-    '</div>';
-
-    // Dépenses par catégorie
     if (catSorted.length > 0) {
       html += '<div class="dash-section"><h3>Par <em>catégorie</em> (12 mois)</h3><div class="dash-cat-list">';
       catSorted.forEach(([cat, amount]) => {
@@ -3605,38 +2831,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '</div>';
       });
       html += '</div></div>';
-    } else {
-      html += '<div class="dash-section"><h3>Par <em>catégorie</em></h3><div class="empty">Aucun coût enregistré dans les 12 derniers mois. Renseigne le coût dans les passages pour voir apparaître le suivi budgétaire.</div></div>';
     }
-
-    // Top 5 tâches
-    if (topTasks.length > 0) {
-      html += '<div class="dash-section"><h3>Les plus <em>coûteuses</em> (historique)</h3><div class="dash-top">';
-      topTasks.forEach((x, i) => {
-        const passages = x.t.history.filter(h => h.cost != null).length;
-        html += '<div class="dash-top-row">' +
-          '<span class="rank">' + (i+1) + '</span>' +
-          '<span class="t-title">' + escapeHtml(x.t.title) + '<em>' + passages + ' passage' + (passages > 1 ? 's' : '') + ' · ' + catLabels[x.t.cat] + '</em></span>' +
-          '<span class="t-amount">' + fmtEur(x.cost) + '</span>' +
-        '</div>';
-      });
-      html += '</div></div>';
-    }
-
-    // v20.1 : section "Audit maison" retirée du tableau de bord.
-
-    // KPIs de suivi
-    const totalPassages = active.reduce((s,t) => s + t.history.length, 0);
-    const tasksWithHistory = active.filter(t => t.history.length > 0).length;
-    const archivedCount = tasks.filter(t => t.archived).length;
-    html += '<div class="dash-section"><h3>En <em>chiffres</em></h3>' +
-      '<div class="dash-kpi-grid">' +
-        '<div class="dash-kpi"><p class="k-lbl">Tâches actives</p><p class="k-val">' + active.length + '</p></div>' +
-        '<div class="dash-kpi"><p class="k-lbl">Avec historique</p><p class="k-val">' + tasksWithHistory + '<span class="unit">/ ' + active.length + '</span></p></div>' +
-        '<div class="dash-kpi"><p class="k-lbl">Total passages</p><p class="k-val">' + totalPassages + '</p></div>' +
-        '<div class="dash-kpi"><p class="k-lbl">Passages ' + currentYear + '</p><p class="k-val">' + countYear + '</p></div>' +
-        '<div class="dash-kpi"><p class="k-lbl">Archivées</p><p class="k-val">' + archivedCount + '</p></div>' +
-      '</div></div>';
 
     // Activité mensuelle — graphique SVG (12 derniers mois)
     const MLBL = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
@@ -3650,7 +2845,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     const monthCounts = months12.map(m => passagesByMonth[m.key] || 0);
     const actMax = Math.max(...monthCounts, 1);
     const todayYM = iso(today()).slice(0, 7);
-    if (monthCounts.some(c => c > 0)) {
+    if (monthCounts.some(n => n > 0)) {
       const slotW = 26, barW = 16, barPad = (slotW - barW) / 2;
       const svgW = 12 * slotW, svgH = 100, barAreaH = 66;
       let svgContent = '';
@@ -3666,22 +2861,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       html += '<div class="dash-section"><h3>Activité <em>mensuelle</em></h3><div class="dash-activity-chart"><svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%;height:' + svgH + 'px;">' + svgContent + '</svg></div></div>';
     }
 
-    // Horizon à venir
-    const td = iso(today());
-    const d7 = new Date(today()); d7.setDate(d7.getDate() + 7); const in7 = iso(d7);
-    const d30 = new Date(today()); d30.setDate(d30.getDate() + 30); const in30 = iso(d30);
-    const nRetard = active.filter(t => t.due && t.due < td).length;
-    const nSemaine = active.filter(t => t.due && t.due >= td && t.due <= in7).length;
-    const nMois = active.filter(t => t.due && t.due > in7 && t.due <= in30).length;
-    const nSuite = active.filter(t => t.due && t.due > in30).length;
-    html += '<div class="dash-section"><h3>Horizon <em>à venir</em></h3><div class="dash-horizon">';
-    html += '<div class="dash-horizon-item' + (nRetard > 0 ? ' h-danger' : '') + '"><p class="h-val">' + nRetard + '</p><p class="h-lbl">En retard</p></div>';
-    html += '<div class="dash-horizon-item' + (nSemaine > 0 ? ' h-warn' : '') + '"><p class="h-val">' + nSemaine + '</p><p class="h-lbl">Cette sem.</p></div>';
-    html += '<div class="dash-horizon-item' + (nMois > 0 ? ' h-ok' : '') + '"><p class="h-val">' + nMois + '</p><p class="h-lbl">Ce mois</p></div>';
-    html += '<div class="dash-horizon-item"><p class="h-val">' + nSuite + '</p><p class="h-lbl">Plus tard</p></div>';
-    html += '</div></div>';
-
-    // Section Véhicules
+    // Suivi véhicules — frais cumulés par voiture, avec export CSV
     const vehiculeTasks = active.filter(t => t.cat === 'vehicule');
     if (vehiculeTasks.length > 0) {
       const vehicleMap = {};
@@ -3697,21 +2877,19 @@ body.modal-open { overflow: hidden; touch-action: none; }
         const hasHistory = data.tasks.some(t => t.history.length > 0);
         html += '<div class="dash-vehicle-row">' +
           '<div class="vehicle-info">' +
-            '<p class="v-name">🚗 ' + escapeHtml(name) + '</p>' +
+            '<p class="v-name">' + escapeHtml(name) + '</p>' +
             '<p class="v-sub">' + data.tasks.length + ' tâche' + (data.tasks.length > 1 ? 's' : '') +
               (data.cost > 0 ? ' · ' + fmtEur(data.cost) + ' de frais' : '') +
               (data.passages > 0 ? ' · ' + data.passages + ' passage' + (data.passages > 1 ? 's' : '') : '') +
             '</p>' +
           '</div>' +
-          (hasHistory ? '<button class="btn btn-sm" onclick="exportVehicleCsv(' + JSON.stringify(name === '—' ? null : name) + ')">↓ CSV</button>' : '') +
+          (hasHistory ? '<button class="btn btn-sm" onclick="exportVehicleCsv(' + JSON.stringify(name === '—' ? null : name) + ')">Export CSV</button>' : '') +
         '</div>';
       });
       html += '</div></div>';
     }
 
     c.innerHTML = html;
-
-    // v20.1 : handlers "add-sugg" et "audit-start" retirés (sections supprimées).
   }
 
   // v20.1 : la fonction renderForecast et l'onglet "Prévisionnel" ont été retirés.
@@ -3811,6 +2989,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<p class="cal-detail-title">' + fmtDate(window._calSelected) + '</p>';
       if (selTasks.length) {
         selTasks.forEach(t => {
+          const stateInfo = taskState(t);
           html += '<div class="cal-detail-row" onclick="viewTask(\'' + t.id + '\')">';
           html += '<span class="cal-detail-dot" style="background:var(--cat-' + t.cat + ')"></span>';
           html += '<span style="flex:1;font-weight:500;">' + escapeHtml(t.title) + '</span>';
@@ -3883,7 +3062,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     t.last = t.history[0].date;
     t.due = iso(due);
     save(); render(); closeModal();
-    toast(motivationAfterDone(t));
+    toast('Passage enregistré — prochaine échéance le ' + fmtDateShort(t.due));
   }
 
   // ---------- Modal helpers ----------
@@ -3971,8 +3150,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
       '<div class="photos-form" id="photos-form"></div>' +
       photoLabelList +
       '<div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 4px;">' +
-        '<button type="button" class="btn btn-sm" id="photo-camera">📷 Prendre une photo</button>' +
-        '<button type="button" class="btn btn-sm" id="photo-gallery">🖼 Depuis galerie / fichier</button>' +
+        '<button type="button" class="btn btn-sm" id="photo-camera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;flex-shrink:0;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>Prendre une photo</button>' +
+        '<button type="button" class="btn btn-sm" id="photo-gallery"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;flex-shrink:0;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Depuis galerie / fichier</button>' +
       '</div>' +
       '<input type="file" id="photo-input-camera" accept="image/*" capture="environment" style="display:none;">' +
       '<input type="file" id="photo-input-gallery" accept="image/*" multiple style="display:none;">' +
@@ -3981,7 +3160,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       '<p style="font-size: 12px; color: var(--text-3); margin: 0 0 8px;">Taille max : 10 Mo par fichier.</p>' +
       '<div class="files-form" id="files-form"></div>' +
       fileLabelList +
-      '<button type="button" class="btn btn-sm" id="file-add">📎 Ajouter un fichier</button>' +
+      '<button type="button" class="btn btn-sm" id="file-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;flex-shrink:0;"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>Ajouter un fichier</button>' +
       '<input type="file" id="file-input" multiple style="display:none;">' +
 
       '<div class="btn-row btn-row-spread">' +
@@ -4200,55 +3379,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     viewTask(taskId);
     toast('Passage supprimé');
   }
-
-  // ---------- Edit last passage date (quick) ----------
-  function editLastDateModal(taskId) {
-    const t = tasks.find(x => x.id === taskId);
-    if (!t) return;
-    const currentDate = t.last || iso(today());
-    openModal(
-      '<h2>Modifier le dernier passage</h2>' +
-      '<p style="font-size:13px;color:var(--text-2);margin:0 0 16px;">Change la date du dernier passage. La prochaine échéance se recalcule automatiquement. Ton historique reste intact.</p>' +
-      '<div class="form-row">' +
-        '<label for="edit-last-date">Date du dernier passage</label>' +
-        '<input type="date" id="edit-last-date" value="' + escapeHtml(currentDate) + '" max="' + escapeHtml(iso(today())) + '">' +
-      '</div>' +
-      '<div class="btn-row" style="margin-top:12px;">' +
-        '<button class="btn btn-sm" data-m="close">Annuler</button>' +
-        '<button class="btn btn-sm btn-primary" data-m="edit-last-save" data-id="' + t.id + '">Enregistrer</button>' +
-      '</div>'
-    );
-    setTimeout(() => { const i = document.getElementById('edit-last-date'); if (i) i.focus(); }, 60);
-  }
-
-  function saveLastDate(taskId) {
-    const t = tasks.find(x => x.id === taskId);
-    if (!t) return;
-    const input = document.getElementById('edit-last-date');
-    if (!input) return;
-    const newDate = input.value;
-    if (!newDate) { alert('Choisis une date.'); return; }
-    // Ne pas accepter une date future
-    if (newDate > iso(today())) { alert('La date ne peut pas être dans le futur.'); return; }
-
-    if (t.history && t.history.length > 0) {
-      // On modifie la date du passage le plus récent pour garder historique cohérent
-      const mostRecent = t.history.reduce((a,b) => a.date > b.date ? a : b);
-      mostRecent.date = newDate;
-      t.history.sort((a,b) => b.date.localeCompare(a.date));
-      const newMostRecent = t.history.reduce((a,b) => a.date > b.date ? a : b);
-      t.last = newMostRecent.date;
-    } else {
-      t.last = newDate;
-    }
-    const dd = new Date(t.last); dd.setHours(0,0,0,0);
-    dd.setDate(dd.getDate() + (t.freq || 0));
-    t.due = iso(dd);
-    save();
-    viewTask(taskId);
-    toast('Dernier passage mis à jour');
-  }
-
   // ---------- View task ----------
   async function viewTask(id) {
     const t = tasks.find(x => x.id === id);
@@ -4367,32 +3497,33 @@ body.modal-open { overflow: hidden; touch-action: none; }
     }
 
     // Action buttons AFTER échéance row, BEFORE contact/notes/history
+    // v26 : hiérarchie des actions. Avant, six boutons de poids égal se
+    // partageaient deux rangées, « Supprimer » occupant la position la plus
+    // visible et « Enregistrer un passage » — l'action réelle — la dernière.
+    // Désormais : l'action principale est seule et pleine largeur, « Modifier »
+    // la suit, et les actions rares ou destructrices sont repliées sous ⋯.
+    const moreSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>';
     const actionRowHtml =
-      '<div class="btn-row btn-row-spread" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">' +
-        '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-          '<button class="btn btn-sm btn-danger" data-m="delete" data-id="' + t.id + '">Supprimer</button>' +
-          '<button class="btn btn-sm" data-m="archive-toggle" data-id="' + t.id + '">' + (t.archived ? 'Désarchiver' : 'Archiver') + '</button>' +
-          '<button class="btn btn-sm" data-m="duplicate" data-id="' + t.id + '">Dupliquer</button>' +
+      '<div class="task-actions">' +
+        (t.archived ? '' : '<button class="btn btn-primary task-action-main" data-m="new-entry" data-id="' + t.id + '">Enregistrer un passage</button>') +
+        '<div class="task-actions-row">' +
+          '<button class="btn btn-sm" data-m="edit" data-id="' + t.id + '">Modifier la fiche</button>' +
+          '<button class="btn btn-sm btn-more" id="task-more-btn" aria-expanded="false" aria-label="Plus d\'actions">' + moreSvg + '</button>' +
         '</div>' +
-        '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-          '<button class="btn btn-sm" data-m="print" data-id="' + t.id + '">🖨 PDF</button>' +
-          '<button class="btn btn-sm" data-m="edit" data-id="' + t.id + '">Modifier</button>' +
-          (t.archived ? '' : '<button class="btn btn-sm btn-primary" data-m="new-entry" data-id="' + t.id + '">+ Passage</button>') +
+        '<div class="task-more-menu" id="task-more-menu" hidden>' +
+          '<button class="settings-link" data-m="archive-toggle" data-id="' + t.id + '"><span>' + (t.archived ? 'Désarchiver' : 'Archiver') + '</span></button>' +
+          '<button class="settings-link" data-m="duplicate" data-id="' + t.id + '"><span>Dupliquer</span></button>' +
+          '<button class="settings-link" data-m="print" data-id="' + t.id + '"><span>Exporter en PDF</span></button>' +
+          '<button class="settings-link settings-link-danger" data-m="delete" data-id="' + t.id + '"><span>Supprimer</span></button>' +
         '</div>' +
       '</div>';
 
-    // v18 : bannière motivation contextuelle (jamais culpabilisante)
-    const motivation = !t.archived ? '<div class="motivation-banner">' + motivationForTask(t) + '</div>' : '';
-
     // v18 : ligne d'importance dans la fiche
     const impRow = '<tr><td>Importance</td><td>' + importanceDot(t.importance || 1) + (importanceLabels[t.importance || 1] || 'Basse') + '</td></tr>';
-    // v18 : ligne coût estimé si défini
-    const estCostRow = (t.estimatedCost != null) ? '<tr><td>Coût estimé</td><td>' + fmtEur(t.estimatedCost) + ' / passage</td></tr>' : '';
 
     openModal(
       '<h2>' + escapeHtml(t.title) + (t.archived ? ' <span class="pill pill-archived" style="margin-left: 6px;">Archivée</span>' : '') + '</h2>' +
       (t.desc ? '<p class="desc">' + escapeHtml(t.desc) + '</p>' : '') +
-      motivation +
       '<h3>Fiche</h3>' +
       '<table>' +
         '<tr><td>Catégorie</td><td>' + catLabels[t.cat] + (t.vehicle ? ' · <strong>' + escapeHtml(t.vehicle) + '</strong>' : '') + '</td></tr>' +
@@ -4403,10 +3534,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
         // et, si un passage existe dans l'historique, sa date y est synchronisée pour rester cohérent.
         '<tr><td>Dernier passage</td><td>' +
           '<span>' + fmtDate(t.last) + '</span>' +
-          (t.archived ? '' : ' <button type="button" class="btn btn-sm" data-m="edit-last" data-id="' + t.id + '" title="Modifier la date" style="margin-left:6px;padding:3px 9px;font-size:12px;">Modifier</button>') +
         '</td></tr>' +
         '<tr><td>Prochaine échéance</td><td>' + fmtDate(t.due) + '</td></tr>' +
-        estCostRow +
         remindersHtml +
       '</table>' +
       actionRowHtml +
@@ -4418,6 +3547,18 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<button class="btn btn-sm" data-m="close">Fermer</button>' +
       '</div>'
     );
+
+    // Menu ⋯ des actions secondaires
+    const moreBtn = document.getElementById('task-more-btn');
+    if (moreBtn) {
+      moreBtn.addEventListener('click', () => {
+        const menu = document.getElementById('task-more-menu');
+        const open = !menu.hidden;
+        menu.hidden = open;
+        moreBtn.setAttribute('aria-expanded', String(!open));
+        moreBtn.classList.toggle('active', !open);
+      });
+    }
 
     // Wire up the "show older" toggle
     const toggleBtn = document.getElementById('toggle-older-btn');
@@ -4474,7 +3615,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     const contact = t && t.contact ? t.contact : { name: '', phone: '', email: '', address: '' };
     const notes = t ? (t.permNotes || '') : '';
     const importance = t ? (t.importance || 1) : 1;
-    const estimatedCost = t && t.estimatedCost != null ? t.estimatedCost : '';
     const vehicle = t ? (t.vehicle || '') : '';
 
     const freqUI = daysToUnit(freq);
@@ -4518,7 +3658,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '</div>' +
       '</div>' +
       '<div class="form-row"><label>Importance <span style="font-weight:400;color:var(--text-3);font-size:11px;">· risque si non réalisée</span></label>' + impHtml + '<input type="hidden" id="f-importance" value="' + importance + '"></div>' +
-      '<div class="form-row"><label>Coût estimé <span style="font-weight:400;color:var(--text-3);font-size:11px;">· optionnel, € par passage</span></label><input id="f-estcost" type="number" min="0" step="0.01" value="' + escapeHtml(estimatedCost) + '" placeholder="Laisse vide pour utiliser la moyenne historique"></div>' +
       '<div class="form-row" id="vehicle-row"' + (cat !== 'vehicule' ? ' style="display:none;"' : '') + '><label>Identification du véhicule <span style="font-weight:400;color:var(--text-3);font-size:11px;">· marque, modèle, plaque</span></label><input id="f-vehicle" type="text" value="' + escapeHtml(vehicle) + '" placeholder="ex : Peugeot 208 · BE-123-AB"></div>' +
       (t ? '' : '<div class="form-row"><label>Date de référence (dernier passage connu)</label><input id="f-last" type="date" value="' + last + '"></div>') +
       '<h3>Rappels d\'anticipation</h3>' +
@@ -4611,9 +3750,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     // v18 : importance et coût estimé
     const impEl = document.getElementById('f-importance');
     const importance = impEl ? Math.max(1, Math.min(3, parseInt(impEl.value, 10) || 1)) : 1;
-    const estCostEl = document.getElementById('f-estcost');
-    const estCostStr = estCostEl ? estCostEl.value.trim() : '';
-    const estimatedCost = estCostStr === '' ? null : Number(estCostStr);
 
     if (id) {
       const t = tasks.find(x => x.id === id);
@@ -4621,7 +3757,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
         t.title = title; t.desc = desc; t.cat = cat; t.freq = freq;
         t.reminders = reminders; t.contact = contact; t.permNotes = permNotes;
         t.importance = importance;
-        t.estimatedCost = estimatedCost;
         t.vehicle = vehicle;
         if (t.history.length > 0) {
           const mostRecent = t.history.reduce((a,b) => a.date > b.date ? a : b);
@@ -4638,7 +3773,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
       const last = lastEl ? lastEl.value : iso(today());
       const lastDate = new Date(last); lastDate.setHours(0,0,0,0);
       const due = new Date(lastDate); due.setDate(due.getDate() + freq);
-      tasks.push(normalizeTask({ id: uid(), title, desc, cat, freq, last: iso(lastDate), due: iso(due), reminders, contact, permNotes, importance, estimatedCost, vehicle, history: [] }));
+      tasks.push(normalizeTask({ id: uid(), title, desc, cat, freq, last: iso(lastDate), due: iso(due), reminders, contact, permNotes, importance, vehicle, history: [] }));
     }
     save(); render(); closeModal();
     toast(id ? 'Fiche modifiée' : 'Tâche créée');
@@ -4659,8 +3794,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
         : '<p style="font-size: 13px; margin: 0 0 14px;">Cette tâche n\'a pas d\'historique. Tu peux l\'archiver pour la sortir de la liste active, ou la supprimer définitivement.</p>') +
       '<div class="btn-row">' +
         '<button class="btn btn-sm" data-m="close">Annuler</button>' +
-        '<button class="btn btn-sm" data-m="archive-toggle" data-id="' + t.id + '">📦 Archiver</button>' +
-        '<button class="btn btn-sm btn-danger" data-m="delete-confirmed" data-id="' + t.id + '">🗑 Supprimer définitivement</button>' +
+        '<button class="btn btn-sm" data-m="archive-toggle" data-id="' + t.id + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;flex-shrink:0;"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>Archiver</button>' +
+        '<button class="btn btn-sm btn-danger" data-m="delete-confirmed" data-id="' + t.id + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;flex-shrink:0;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>Supprimer définitivement</button>' +
       '</div>'
     );
   }
@@ -5020,10 +4155,10 @@ body.modal-open { overflow: hidden; touch-action: none; }
         ? 'Dans Safari, touche le bouton <strong>Partager</strong> (⬆ en bas) puis <strong>« Sur l\'écran d\'accueil »</strong>. Ouvre ensuite Logis depuis l\'icône installée.'
         : 'Touche le menu de ton navigateur (⋮ ou ⋯) puis <strong>« Installer l\'application »</strong> ou <strong>« Ajouter à l\'écran d\'accueil »</strong>. Ouvre ensuite Logis depuis l\'icône installée.';
       openModal(
-        '<h2>🔔 Rappels intelligents</h2>' +
+        '<h2>Rappels intelligents</h2>' +
         '<p style="font-size:13px;color:var(--text-2);margin:0 0 16px;">Logis est pensée pour fonctionner comme une vraie appli. Les rappels push fiables nécessitent de <strong>l\'installer sur ton écran d\'accueil</strong>.</p>' +
         '<div style="padding:14px;background:var(--accent-wash);border:1px solid var(--accent-soft);border-radius:var(--r-sm);font-size:13.5px;color:var(--text);line-height:1.6;margin-bottom:14px;">' +
-          '<p style="margin:0 0 8px;font-weight:600;">📲 Installer Logis en 5 secondes</p>' +
+          '<p style="margin:0 0 8px;font-weight:600;">Installer Logis en 5 secondes</p>' +
           '<p style="margin:0;">' + howToInstall + '</p>' +
         '</div>' +
         '<div style="font-size:12px;color:var(--text-3);padding:10px 12px;background:var(--surface-2);border-radius:var(--r-sm);line-height:1.5;margin-bottom:14px;">' +
@@ -5047,7 +4182,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     }
 
     openModal(
-      '<h2>🔔 Rappels intelligents</h2>' +
+      '<h2>Rappels intelligents</h2>' +
       '<p style="font-size:13px;color:var(--text-2);margin:0 0 16px;">Reçois une notification <strong>uniquement</strong> les jours où une tâche est en retard ou proche de l\'échéance. Rien si tout est à jour.</p>' +
       statusBanner +
       '<div class="form-row" style="display:flex;align-items:center;gap:14px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:14px;">' +
@@ -5179,104 +4314,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     fileKeys.forEach((k, i) => { if (fileVals[i] != null) files[k] = fileVals[i]; });
     return { version: 17, tasks: tasks.map(stripInternals), photos, files, nextId, exportedAt: new Date().toISOString(), app: 'Logis', house: (loadProfile().houseName || 'Ma maison') };
   }
-
-  async function backupToGoogleDrive() {
-    toast('Préparation de la sauvegarde…');
-    try {
-      const payload = await buildExportPayload();
-      const json = JSON.stringify(payload, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const fileName = 'logis_' + slugifyHouseName(loadProfile().houseName) + '_' + iso(today()) + '.json';
-
-      // Use Google Picker API / Drive API via OAuth
-      // Since this is a standalone HTML app without a server, we use the
-      // Google Drive upload via the user's OAuth token obtained via popup
-      const CLIENT_ID = ''; // User must configure this
-      const SCOPE = 'https://www.googleapis.com/auth/drive.file';
-
-      // Check if gapi is available
-      if (typeof google === 'undefined' || !google.accounts) {
-        // Fallback: show instructions modal with download option
-        showDriveInstructionsModal(blob, fileName, json);
-        return;
-      }
-
-      const tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CLIENT_ID,
-        scope: SCOPE,
-        callback: async (response) => {
-          if (response.error) { toast('Erreur Google Drive : ' + response.error); return; }
-          await uploadToDrive(blob, fileName, response.access_token);
-        }
-      });
-      tokenClient.requestAccessToken({ prompt: '' });
-
-    } catch(err) {
-      toast('Erreur : ' + err.message);
-    }
-  }
-
-  async function uploadToDrive(blob, fileName, token) {
-    try {
-      toast('Upload vers Google Drive…');
-      const metadata = { name: fileName, mimeType: 'application/json', parents: ['root'] };
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
-      form.append('file', blob);
-      const resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + token },
-        body: form
-      });
-      if (!resp.ok) throw new Error('HTTP ' + resp.status);
-      const data = await resp.json();
-      try { localStorage.setItem(GDRIVE_BACKUP_KEY, new Date().toISOString()); } catch(e) {}
-      toast('✓ Sauvegardé sur Google Drive : ' + fileName);
-    } catch(err) {
-      toast('Erreur upload Drive : ' + err.message);
-    }
-  }
-
-  function showDriveInstructionsModal(blob, fileName, json) {
-    // v21 fix : try/catch sur localStorage. En mode privé Firefox ou si l'espace
-    // de stockage est saturé, getItem peut lever — sans protection, toute la
-    // modale se serait crashée et l'utilisateur n'aurait pas pu sauvegarder.
-    let lastBackup = null;
-    try { lastBackup = localStorage.getItem(GDRIVE_BACKUP_KEY); } catch(e) {}
-    const lastBackupStr = lastBackup ? new Date(lastBackup).toLocaleDateString('fr-BE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'jamais';
-    const sizeKb = Math.round(json.length / 1024);
-    openModal(
-      '<h2>☁️ Sauvegarde Google Drive</h2>' +
-      '<p style="font-size:13px;color:var(--text-2);margin:0 0 16px;">Sauvegarde ton carnet Logis sur Google Drive pour ne jamais perdre tes données.</p>' +
-      '<div style="padding:12px 14px;background:var(--info-bg);border:1px solid var(--info-border);border-radius:var(--r-sm);font-size:13px;margin-bottom:16px;">' +
-        '<strong>Dernière sauvegarde :</strong> ' + lastBackupStr + '<br>' +
-        '<strong>Taille du fichier :</strong> ' + sizeKb + ' KB' +
-      '</div>' +
-      '<p style="font-size:13px;font-weight:600;color:var(--text);margin:0 0 10px;">Comment sauvegarder sur Google Drive :</p>' +
-      '<ol style="font-size:13px;color:var(--text-2);margin:0 0 16px;padding-left:20px;line-height:1.8;">' +
-        '<li>Clique sur <strong>Télécharger la sauvegarde</strong> ci-dessous</li>' +
-        '<li>Ouvre <a href="https://drive.google.com" target="_blank" style="color:var(--info);">drive.google.com</a> dans un nouvel onglet</li>' +
-        '<li>Glisse-dépose le fichier téléchargé dans Drive</li>' +
-        '<li>Le fichier <strong>' + fileName + '</strong> sera sauvegardé ✓</li>' +
-      '</ol>' +
-      '<div style="padding:10px 12px;background:var(--surface-2);border-radius:var(--r-sm);font-size:12px;color:var(--text-3);margin-bottom:16px;">' +
-        '💡 Conseil : crée un dossier <strong>Logis / Sauvegardes</strong> sur Drive pour organiser tes backups automatiques.' +
-      '</div>' +
-      '<div class="btn-row">' +
-        '<button class="btn btn-sm" data-m="close">Fermer</button>' +
-        '<button class="btn btn-sm btn-primary" id="drive-dl-btn">⬇ Télécharger la sauvegarde</button>' +
-      '</div>'
-    );
-    document.getElementById('drive-dl-btn').addEventListener('click', () => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = fileName;
-      a.click(); URL.revokeObjectURL(url);
-      try { localStorage.setItem(GDRIVE_BACKUP_KEY, new Date().toISOString()); } catch(e) {}
-      toast('Fichier prêt — glisse-le sur drive.google.com');
-    });
-  }
-
   // ---------- Export / Import ----------
   function slugifyHouseName(name) {
     const n = (name || 'maison').toString().toLowerCase()
@@ -5554,14 +4591,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
   }
 
   // ---------- Events ----------
-  function triggerAnimateIn(viewEl) {
-    if (!viewEl) return;
-    viewEl.classList.remove('animate-in');
-    // Force reflow then re-add so the animation replays on view change
-    void viewEl.offsetWidth;
-    viewEl.classList.add('animate-in');
-  }
-
   const allTabs = document.querySelectorAll('.tab');
   const allViews = document.querySelectorAll('.view');
   allTabs.forEach(b => {
@@ -5569,12 +4598,11 @@ body.modal-open { overflow: hidden; touch-action: none; }
       if (b.dataset.tab === currentTab) return;
       currentTab = b.dataset.tab;
       allTabs.forEach(x => x.classList.remove('active'));
-      allViews.forEach(x => x.classList.remove('active', 'animate-in'));
+      allViews.forEach(x => x.classList.remove('active'));
       b.classList.add('active');
       const viewEl = document.getElementById('view-' + currentTab);
       viewEl.classList.add('active');
       render();
-      triggerAnimateIn(viewEl);
     });
   });
 
@@ -5664,8 +4692,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     else if (m === 'duplicate') duplicateTask(id);
     else if (m === 'print') printTask(id);
     else if (m === 'quick-done-confirm') quickDoneConfirm(id);
-    else if (m === 'edit-last') editLastDateModal(id);
-    else if (m === 'edit-last-save') saveLastDate(id);
   });
 
   document.getElementById('modal-bg').addEventListener('click', e => {
@@ -5749,10 +4775,10 @@ body.modal-open { overflow: hidden; touch-action: none; }
     if (!document.hidden) updateNotifBtn();
   });
 
-  document.getElementById('btn-gdrive').addEventListener('click', backupToGoogleDrive);
-  document.getElementById('btn-export').addEventListener('click', doExport);
-  document.getElementById('btn-import').addEventListener('click', () => document.getElementById('file-import').click());
   document.getElementById('btn-settings').addEventListener('click', () => openSettingsModal());
+  // v26 : le nom de la maison ouvre les Paramètres, où le champ existe déjà.
+  // L'overlay de renommage dédié faisait doublon avec ce champ.
+  document.getElementById('place-label').addEventListener('click', () => openSettingsModal());
   document.getElementById('file-import').addEventListener('change', e => {
     const f = e.target.files[0]; if (!f) return;
     doImport(f); e.target.value = '';
@@ -5801,7 +4827,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
     }
 
     render();
-    triggerAnimateIn(document.getElementById('view-' + currentTab));
     // Smart notifications: check on load and schedule
     updateNotifBtn();
     setTimeout(() => {
@@ -5934,6 +4959,20 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<input type="text" id="set-housename" value="' + escapeHtml(p.houseName || '') + '" placeholder="Ex : Maison du Parc">' +
       '</div>' +
 
+      // v26 : Export/Import descendent de l'en-tête vers les Paramètres.
+      // Ce sont des actions rares : elles encombraient la barre du haut, qui
+      // portait cinq boutons réduits à 32 px sur petit écran.
+      '<div style="margin:24px 0 10px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.07em;">Données</div>' +
+      '<div class="settings-links">' +
+        '<button class="settings-link" id="set-export"><span>Exporter mes données</span>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+        '</button>' +
+        '<button class="settings-link" id="set-import"><span>Importer une sauvegarde</span>' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+        '</button>' +
+      '</div>' +
+      '<p style="font-size:12px;color:var(--text-3);margin:8px 2px 0;line-height:1.45;">L\'export produit un fichier JSON contenant tâches, historique, photos et documents.</p>' +
+
       '<div style="margin:24px 0 10px;font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.07em;">Apparence</div>' +
       '<div class="theme-selector" id="theme-selector">' +
         themeOptionHtml('light', 'Clair', '<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>', currentTheme) +
@@ -5977,6 +5016,9 @@ body.modal-open { overflow: hidden; touch-action: none; }
     openModal(html);
 
     // Changement de thème : effet immédiat, sans attendre « Enregistrer ».
+    document.getElementById('set-export').addEventListener('click', () => { closeModal(); doExport(); });
+    document.getElementById('set-import').addEventListener('click', () => { closeModal(); document.getElementById('file-import').click(); });
+
     document.getElementById('theme-selector').addEventListener('click', e => {
       const btn = e.target.closest('[data-theme-mode]');
       if (!btn) return;
@@ -6061,7 +5103,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     }).join('');
 
     openModal(
-      '<h2>🏠 Mes équipements</h2>' +
+      '<h2>Mes équipements</h2>' +
       '<p style="font-size:13px;color:var(--text-2);margin:0 0 18px;">Coche ce qui est présent chez toi. Les catégories décochées seront archivées (tu pourras toujours les réactiver).</p>' +
       '<div class="ob-equipment-grid" id="set-equip-grid" style="max-height:340px;">' + gridHtml + '</div>' +
       '<div class="btn-row">' +
@@ -6369,7 +5411,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '<p><strong>Logis</strong> est ton carnet d\'entretien personnel : un outil pour garder trace de ce qui se passe chez toi — chaudière révisée, détecteur changé, filtre remplacé — et recevoir un petit rappel avant que les échéances arrivent.</p>' +
         '<p>Conçu avec simplicité en tête : pas de compte à créer, pas de serveur distant, pas de publicité. Tes données restent sur ton appareil, point.</p>' +
         '<p style="margin-top:18px;padding:12px 14px;background:var(--surface-2);border-radius:var(--r-sm);font-size:13px;color:var(--text-2);">' +
-          '<strong>Version</strong> · v20 — avril 2026<br>' +
+          '<strong>Version</strong> · ' + APP_VERSION + '<br>' +
           '<strong>Usage</strong> · personnel et familial<br>' +
           '<strong>Licence</strong> · proposé tel quel, sans garantie' +
         '</p>';
@@ -6410,40 +5452,6 @@ body.modal-open { overflow: hidden; touch-action: none; }
       openSettingsModal();
     });
   }
-
-  // ---- Rename house (click on place label) ----
-  document.getElementById('place-label').addEventListener('click', () => {
-    const profile = loadProfile();
-    const input = document.getElementById('rename-input');
-    input.value = profile.houseName || '';
-    const overlay = document.getElementById('rename-overlay');
-    overlay.style.display = 'flex';
-    setTimeout(() => { input.select(); input.focus(); }, 60);
-  });
-
-  document.getElementById('rename-cancel').addEventListener('click', () => {
-    document.getElementById('rename-overlay').style.display = 'none';
-  });
-
-  document.getElementById('rename-overlay').addEventListener('click', e => {
-    if (e.target.id === 'rename-overlay')
-      document.getElementById('rename-overlay').style.display = 'none';
-  });
-
-  document.getElementById('rename-save').addEventListener('click', () => {
-    const val = document.getElementById('rename-input').value.trim();
-    const profile = loadProfile();
-    profile.houseName = val || 'Ma maison';
-    saveProfile(profile);
-    updatePlaceLabel(profile);
-    document.getElementById('rename-overlay').style.display = 'none';
-    toast('Maison renommée ✓');
-  });
-
-  document.getElementById('rename-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('rename-save').click();
-    if (e.key === 'Escape') document.getElementById('rename-cancel').click();
-  });
 
   // ---- Onboarding ----
   // Liste générique d'équipements pour donner des idées à l'utilisateur.
