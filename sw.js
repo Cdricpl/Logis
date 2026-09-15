@@ -1,11 +1,16 @@
 // Service worker Logis — mode hors ligne
-const CACHE = "logis-v1";
+// v26.3 : nom de cache incrémenté. Le handler « activate » purge toute clé
+// différente, ce qui force le rechargement des icônes redessinées — sans cela,
+// l'ancienne icône resterait servie depuis le cache après déploiement.
+const CACHE = "logis-v2";
 const PRECACHE = [
   "/",
   "/api/logis",
   "/manifest.webmanifest",
+  "/icon-32.png",
   "/icon-192.png",
   "/icon-512.png",
+  "/icon-maskable-192.png",
   "/icon-maskable-512.png",
   "/apple-touch-icon.png",
 ];
