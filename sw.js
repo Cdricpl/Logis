@@ -2,7 +2,7 @@
 // v26.3 : nom de cache incrémenté. Le handler « activate » purge toute clé
 // différente, ce qui force le rechargement des icônes redessinées — sans cela,
 // l'ancienne icône resterait servie depuis le cache après déploiement.
-const CACHE = "logis-v2";
+const CACHE = "logis-v3";
 const PRECACHE = [
   "/",
   "/api/logis",
