@@ -2,11 +2,12 @@
 // v26.3 : nom de cache incrémenté. Le handler « activate » purge toute clé
 // différente, ce qui force le rechargement des icônes redessinées — sans cela,
 // l'ancienne icône resterait servie depuis le cache après déploiement.
+// v28 : cache renouvelé pour servir les icônes vert sapin.
 // v27 : notifications push déplacées dans sw-push.js, partagé avec sw-gh.js.
 self.LOGIS_APP_URL = "/api/logis";
 importScripts("/sw-push.js");
 
-const CACHE = "logis-v3";
+const CACHE = "logis-v4";
 const PRECACHE = [
   "/",
   "/api/logis",

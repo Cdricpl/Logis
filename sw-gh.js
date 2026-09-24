@@ -1,10 +1,11 @@
 // Service worker Logis — hébergement statique de index.html (Firebase Hosting,
 // GitHub Pages). Version allégée : pas de /api/logis, chemins relatifs.
 // v26.3 : nom de cache incrémenté pour purger les anciennes icônes.
+// v28 : cache renouvelé pour servir les icônes vert sapin.
 // v27 : les notifications push (réception, clic) vivent dans sw-push.js.
 importScripts("./sw-push.js");
 
-const CACHE = "logis-gh-v3";
+const CACHE = "logis-gh-v4";
 const PRECACHE = ["./", "./index.html", "./manifest.webmanifest",
   "./icon-32.png", "./icon-192.png", "./icon-512.png",
   "./icon-maskable-192.png", "./icon-maskable-512.png", "./apple-touch-icon.png"];
