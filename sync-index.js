@@ -37,9 +37,11 @@ const RULES = [
     what: 'service worker',
     from: "navigator.serviceWorker.register('/sw.js')",
     to:
-      "// sw-gh.js sur GitHub Pages (sans /api/logis), sw.js sur Cloudflare Workers\n" +
-      "      var swFile = host.indexOf('github.io') !== -1 ? './sw-gh.js' : './sw.js';\n" +
-      '      navigator.serviceWorker.register(swFile)',
+      "// index.html est servi en fichiers statiques (Firebase Hosting, GitHub Pages) :\n" +
+      "      // toujours sw-gh.js. sw.js précharge /api/logis, qui n'existe que sur\n" +
+      "      // Cloudflare — son installation échouait partout ailleurs, sans mode hors\n" +
+      "      // ligne ni notifications.\n" +
+      "      navigator.serviceWorker.register('./sw-gh.js')",
     count: 1,
   },
 ];
