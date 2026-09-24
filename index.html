@@ -2165,7 +2165,12 @@ body.modal-open { overflow: hidden; touch-action: none; }
 // fichier sw.js sur un serveur — ce qui n'est pas possible avec un fichier HTML local.
 
 (function() {
-  const APP_VERSION = 'v26';
+  const APP_VERSION = 'v27';
+  // v27 : adresse du serveur de notifications (push-worker/, déployé sur
+  // Cloudflare). Vide tant qu'il n'est pas déployé : l'appli le dit alors
+  // honnêtement, au lieu de promettre des rappels qui n'arriveront pas.
+  // Doit rester identique à LOGIS_PUSH_API dans sw-push.js.
+  const PUSH_API = '';
   const THEME_KEY = 'logis_theme';
   const STORAGE_KEY = 'logis_v14';
   const DB_NAME = 'logis_db';
@@ -2558,7 +2563,21 @@ body.modal-open { overflow: hidden; touch-action: none; }
     const _d = { tasks: tasks.map(stripInternals), nextId };
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(_d)); }
     catch(e) { if (e.name === 'QuotaExceededError') alert('Stockage saturé. Exporte et nettoie.'); }
-    dbPut('data', _d, 'tasks').catch(() => {});
+    // Copie lue par le service worker (sw-push.js) pour composer les
+    // notifications quand l'appli est fermée. v27 : + nom de la maison.
+    let houseName = '';
+    try { houseName = (JSON.parse(localStorage.getItem('logis_profile')) || {}).houseName || ''; } catch(e) {}
+    dbPut('data', { ..._d, houseName }, 'tasks').catch(() => {});
+    schedulePushSync();
+  }
+
+  // v27 : après chaque modification, le serveur de notifications reçoit le
+  // nouveau calendrier des rappels. Regroupé : une rafale de sauvegardes ne
+  // produit qu'une requête. Différé, donc jamais exécuté pendant l'init.
+  function schedulePushSync() {
+    if (!PUSH_API) return;
+    clearTimeout(schedulePushSync._t);
+    schedulePushSync._t = setTimeout(() => { pushSync().catch(() => {}); }, 3000);
   }
   function stripInternals(t) { const c = {...t}; delete c._migratePhoto; return c; }
 
@@ -4177,6 +4196,96 @@ body.modal-open { overflow: hidden; touch-action: none; }
     notifCheckTimerId = setTimeout(scheduleNotifCheck, Math.max(msUntilNextHour, 60 * 1000));
   }
 
+  // ---------- v27 : notifications push, appli fermée ----------
+  // Le serveur (push-worker/) réveille le téléphone à l'heure choisie. Il ne
+  // reçoit que des DATES — quand prévenir —, jamais le contenu des tâches : le
+  // texte est composé sur le téléphone par sw-push.js.
+
+  // Les règles de getDueNotifMessages(), traduites en dates absolues : chaque
+  // jour dès le lendemain de la plus ancienne échéance (retard), et le jour
+  // exact de chaque rappel J-x.
+  function computePushSchedule() {
+    const todayIso = iso(today());
+    let overdueFrom = null;
+    const dates = new Set();
+    tasks.forEach(t => {
+      if (t.archived || !t.due) return;
+      const [y, m, d] = t.due.split('-').map(Number);
+      const firstLateDay = iso(new Date(y, m - 1, d + 1));
+      if (!overdueFrom || firstLateDay < overdueFrom) overdueFrom = firstLateDay;
+      (t.reminders || []).forEach(r => {
+        const day = iso(new Date(y, m - 1, d - r));
+        if (day >= todayIso) dates.add(day);
+      });
+    });
+    return { overdueFrom, dates: [...dates].sort().slice(0, 400) };
+  }
+
+  function pushSupported() {
+    return !!PUSH_API && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  }
+
+  async function pushPost(path, payload) {
+    const res = await fetch(PUSH_API + path, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    let data = null;
+    try { data = await res.json(); } catch(e) {}
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  function b64urlBytes(s) {
+    const raw = atob((s + '='.repeat((4 - s.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(raw, c => c.charCodeAt(0));
+  }
+
+  // Abonne le téléphone si besoin, puis envoie heure, fuseau et calendrier.
+  // Appelée à l'activation, à chaque ouverture et après chaque modification.
+  async function pushSync() {
+    if (!pushSupported() || Notification.permission !== 'granted') return { ok: false, reason: 'non pris en charge' };
+    const prefs = getNotifPrefs();
+    if (!prefs.enabled) return { ok: false, reason: 'désactivé' };
+    const { publicKey } = await (await fetch(PUSH_API + '/vapid-key')).json();
+    const appKey = b64urlBytes(publicKey);
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    // Un abonnement signé pour une autre clé serait refusé à chaque envoi.
+    const current = sub && sub.options && sub.options.applicationServerKey;
+    if (sub && !(current && new Uint8Array(current).join() === appKey.join())) {
+      await sub.unsubscribe().catch(() => {});
+      sub = null;
+    }
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey });
+    let tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e) {}
+    const res = await pushPost('/subscribe', {
+      subscription: sub.toJSON(), hour: prefs.hour || 9, tz,
+      utcOffsetMinutes: -new Date().getTimezoneOffset(), schedule: computePushSchedule()
+    });
+    return { ok: res.ok, reason: res.ok ? '' : ((res.data && res.data.error) || 'erreur ' + res.status), endpoint: sub.endpoint };
+  }
+
+  async function pushDisable() {
+    if (!('serviceWorker' in navigator)) return;
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg && await reg.pushManager.getSubscription();
+    if (!sub) return;
+    if (PUSH_API) await pushPost('/unsubscribe', { endpoint: sub.endpoint }).catch(() => {});
+    await sub.unsubscribe().catch(() => {});
+  }
+
+  // Fait envoyer un VRAI push par le serveur : la seule preuve que les rappels
+  // arriveront appli fermée. Le drapeau indique au service worker d'afficher
+  // « Logis · Test » plutôt que le rappel du jour.
+  async function pushTest(endpoint) {
+    await dbPut('pushTest', Date.now(), 'tasks').catch(() => {});
+    const res = await pushPost('/test', { endpoint });
+    // Aucun push n'arrivera : sans ce nettoyage, le prochain VRAI rappel
+    // s'afficherait comme « Logis · Test ».
+    if (!res.ok) await dbDel('pushTest', 'tasks').catch(() => {});
+    return res.ok ? { ok: true } : { ok: false, reason: (res.data && res.data.result) || 'erreur ' + res.status };
+  }
+
   function openNotifSettingsModal() {
     const prefs = getNotifPrefs();
     const hasNotifApi = 'Notification' in window;
@@ -4236,7 +4345,9 @@ body.modal-open { overflow: hidden; touch-action: none; }
         '</select>' +
       '</div>' +
       '<div style="font-size:12px;color:var(--text-3);margin-bottom:6px;padding:10px 12px;background:var(--surface-2);border-radius:var(--r-sm);line-height:1.5;">' +
-        '💡 Les rappels arrivent même quand l\'app est fermée, via une notification push.' +
+        (pushSupported()
+          ? '💡 Les rappels arrivent même quand l\'app est fermée. Une notification de test est envoyée à l\'activation.'
+          : '💡 Sur cet appareil, les rappels ne s\'affichent que lorsque Logis est ouverte.') +
       '</div>' +
       '<div class="btn-row">' +
         '<button class="btn btn-sm" data-m="close">Annuler</button>' +
@@ -4274,39 +4385,32 @@ body.modal-open { overflow: hidden; touch-action: none; }
       if (enabled) {
         toast('Rappels activés à ' + String(hour).padStart(2,'0') + 'h00 ✓');
         scheduleNotifCheck();
-        // Abonnement push pour notifications en arrière-plan
-        (async () => {
-          try {
-            const resp = await fetch('/api/push/vapid-key').catch(() => null);
-            if (!resp || !resp.ok) return;
-            const { publicKey } = await resp.json();
-            if (!publicKey || !('serviceWorker' in navigator)) return;
-            const reg = await navigator.serviceWorker.ready;
-            let sub = await reg.pushManager.getSubscription();
-            if (!sub) {
-              const pad = s => s + '='.repeat((4 - s.length % 4) % 4);
-              const raw = atob(pad(publicKey).replace(/-/g, '+').replace(/_/g, '/'));
-              const appKey = Uint8Array.from(raw, c => c.charCodeAt(0));
-              sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey });
+        if (pushSupported()) {
+          // v27 : abonnement auprès du serveur, puis vrai push de test envoyé par
+          // lui — il arrive par le même chemin que les rappels, appli fermée.
+          (async () => {
+            try {
+              const sync = await pushSync();
+              if (!sync.ok) { toast('Rappels appli fermée indisponibles (' + sync.reason + ')'); return; }
+              const test = await pushTest(sync.endpoint);
+              if (!test.ok) toast('Notification de test non envoyée (' + test.reason + ')');
+            } catch(e) {
+              toast('Rappels appli fermée indisponibles (' + ((e && e.message) || 'erreur') + ')');
             }
-            await fetch('/api/push/subscribe', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ subscription: sub.toJSON(), hour, utcOffsetMinutes: -new Date().getTimezoneOffset() })
-            }).catch(() => {});
-          } catch(e) { /* push non critique */ }
-        })();
-        // Notification test pour confirmer que ça marche vraiment
-        setTimeout(async () => {
-          const { body, count } = getDueNotifMessages();
-          const testBody = count > 0 ? body : 'Tout est sous contrôle — Logis veille sur ta maison.';
-          const res = await showLogisNotification('Logis · Test', {
-            body: testBody, tag: 'logis-test', icon: '/icon-192.png', badge: '/icon-192.png'
-          });
-          if (!res.ok) {
-            toast('Notification test impossible (' + (res.reason || 'erreur') + ')');
-          }
-        }, 800);
+          })();
+        } else {
+          // Notification test pour confirmer que ça marche vraiment
+          setTimeout(async () => {
+            const { body, count } = getDueNotifMessages();
+            const testBody = count > 0 ? body : 'Tout est sous contrôle — Logis veille sur ta maison.';
+            const res = await showLogisNotification('Logis · Test', {
+              body: testBody, tag: 'logis-test', icon: '/icon-192.png', badge: '/icon-192.png'
+            });
+            if (!res.ok) {
+              toast('Notification test impossible (' + (res.reason || 'erreur') + ')');
+            }
+          }, 800);
+        }
       } else {
         // v21 fix : on annule explicitement la chaîne de vérification quand
         // l'utilisateur désactive les notifs. Sans ça, le setTimeout en cours
@@ -4316,23 +4420,8 @@ body.modal-open { overflow: hidden; touch-action: none; }
           clearTimeout(notifCheckTimerId);
           notifCheckTimerId = null;
         }
-        // Désabonnement push
-        (async () => {
-          try {
-            const reg2 = await navigator.serviceWorker.getRegistration();
-            if (reg2) {
-              const sub2 = await reg2.pushManager.getSubscription();
-              if (sub2) {
-                await fetch('/api/push/unsubscribe', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ endpoint: sub2.endpoint })
-                }).catch(() => {});
-                await sub2.unsubscribe().catch(() => {});
-              }
-            }
-          } catch(e) {}
-        })();
+        // Désabonnement push (serveur + navigateur)
+        pushDisable().catch(() => {});
         toast('Rappels désactivés');
       }
     });
@@ -4907,6 +4996,7 @@ body.modal-open { overflow: hidden; touch-action: none; }
     setTimeout(() => {
       notifyDue();
       scheduleNotifCheck();
+      if (getNotifPrefs().enabled) pushSync().catch(() => {});
     }, 2000);
 
     // v21 fix : avertissement non-bloquant si IndexedDB n'a pas pu s'ouvrir.

@@ -1,0 +1,59 @@
+# Serveur de notifications de Logis : tests, puis déploiement sur Cloudflare.
+#
+# Prérequis, une seule fois (Settings > Secrets and variables > Actions) :
+#   CLOUDFLARE_API_TOKEN   jeton créé avec le modèle « Edit Cloudflare Workers »
+#   CLOUDFLARE_ACCOUNT_ID  identifiant du compte Cloudflare
+name: Serveur de notifications
+
+on:
+  push:
+    branches: [main]
+    paths: ['push-worker/**', 'sw-push.js', 'Logis.html', '.github/workflows/push-worker.yml']
+  pull_request:
+    paths: ['push-worker/**', 'sw-push.js', 'Logis.html', 'index.html', 'sw.js', 'sw-gh.js', '.github/workflows/push-worker.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Tests (serveur + cohérence de l'appli)
+        run: node --test push-worker/test/*.test.js
+
+  deploy:
+    needs: tests
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Vérifier les secrets Cloudflare
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$ACCOUNT" ]; then
+            echo "::error::Secrets CLOUDFLARE_API_TOKEN et CLOUDFLARE_ACCOUNT_ID manquants (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+      - name: Déployer
+        working-directory: push-worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: 'false'
+        run: |
+          npx --yes wrangler@4 deploy 2>&1 | tee deploy.log
+          URL=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          echo "### Serveur de notifications déployé" >> "$GITHUB_STEP_SUMMARY"
+          echo "Adresse : \`${URL:-introuvable dans le journal}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "PUSH_API=$URL"

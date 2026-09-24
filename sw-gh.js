@@ -1,6 +1,9 @@
 // Service worker Logis — GitHub Pages (cdricpl.github.io/Logis/)
 // Version allégée : pas de /api/logis, chemins relatifs, notifications via SW.
 // v26.3 : nom de cache incrémenté pour purger les anciennes icônes.
+// v27 : les notifications push (réception, clic) vivent dans sw-push.js.
+importScripts("./sw-push.js");
+
 const CACHE = "logis-gh-v3";
 const PRECACHE = ["./", "./index.html", "./manifest.webmanifest",
   "./icon-32.png", "./icon-192.png", "./icon-512.png",
@@ -27,6 +30,8 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
+  // Le serveur de notifications ne doit jamais être servi depuis le cache.
+  if (LOGIS_PUSH_API && req.url.startsWith(LOGIS_PUSH_API)) return;
   event.respondWith(
     fetch(req)
       .then((res) => {
@@ -39,18 +44,5 @@ self.addEventListener("fetch", (event) => {
       .catch(() =>
         caches.match(req).then((cached) => cached || new Response("", { status: 504 }))
       )
-  );
-});
-
-self.addEventListener("notificationclick", (event) => {
-  event.notification.close();
-  event.waitUntil(
-    (async () => {
-      const clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-      for (const c of clients) {
-        if ("focus" in c) return c.focus();
-      }
-      if (self.clients.openWindow) return self.clients.openWindow("./");
-    })()
   );
 });
