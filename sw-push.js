@@ -7,7 +7,7 @@
 
 // Adresse du serveur de notifications. Doit rester identique à PUSH_API dans
 // Logis.html (vérifié par push-worker/test/config.test.js).
-const LOGIS_PUSH_API = '';
+const LOGIS_PUSH_API = 'https://logis-push.pieltain-cedric.workers.dev';
 
 // Page à ouvrir au clic ; chaque service worker la fixe avant l'importScripts.
 const LOGIS_APP_URL = self.LOGIS_APP_URL || self.registration.scope;
