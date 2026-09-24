@@ -1,0 +1,17 @@
+{
+  // Serveur de notifications de Logis. Déployé par .github/workflows/push-worker.yml.
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "logis-push",
+  "main": "src/index.js",
+  "compatibility_date": "2025-09-01",
+  "workers_dev": true,
+  "durable_objects": {
+    "bindings": [{ "name": "PUSH_STORE", "class_name": "PushStore" }]
+  },
+  // Durable Object SQLite : disponible sur l'offre gratuite, et créé
+  // automatiquement au déploiement (aucun identifiant à renseigner).
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PushStore"] }],
+  // Toutes les heures : chaque abonné est prévenu à SON heure locale.
+  "triggers": { "crons": ["0 * * * *"] },
+  "observability": { "enabled": true }
+}
