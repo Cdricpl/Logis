@@ -36,24 +36,41 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Vérifier les secrets Cloudflare
+      - name: Déployer
+        working-directory: push-worker
         env:
-          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          RAW_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          RAW_ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: 'false'
         run: |
+          # Sans pipefail, c'est le code de sortie de `tee` qui comptait : un
+          # déploiement raté s'affichait en vert.
+          set -o pipefail
+          # Un copier-coller sur téléphone ajoute souvent un saut de ligne ou
+          # une espace ; ni le jeton ni l'identifiant n'en contiennent jamais.
+          TOKEN="$(printf '%s' "$RAW_TOKEN" | tr -d '[:space:]')"
+          ACCOUNT="$(printf '%s' "$RAW_ACCOUNT" | tr -d '[:space:]')"
+          echo "::add-mask::$TOKEN"
+          echo "Jeton : ${#TOKEN} caractères — Account ID : ${#ACCOUNT} caractères"
           if [ -z "$TOKEN" ] || [ -z "$ACCOUNT" ]; then
             echo "::error::Secrets CLOUDFLARE_API_TOKEN et CLOUDFLARE_ACCOUNT_ID manquants (Settings > Secrets and variables > Actions)."
             exit 1
           fi
-      - name: Déployer
-        working-directory: push-worker
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          WRANGLER_SEND_METRICS: 'false'
-        run: |
+          if ! printf '%s' "$TOKEN" | grep -Eq '^[A-Za-z0-9_-]{30,}$'; then
+            echo "::error::CLOUDFLARE_API_TOKEN ne ressemble pas à un jeton Cloudflare : il doit tenir en une seule suite de lettres et de chiffres. Recolle uniquement le jeton."
+            exit 1
+          fi
+          if ! printf '%s' "$ACCOUNT" | grep -Eq '^[0-9a-f]{32}$'; then
+            echo "::error::CLOUDFLARE_ACCOUNT_ID doit faire 32 caractères (chiffres et lettres a à f)."
+            exit 1
+          fi
+          export CLOUDFLARE_API_TOKEN="$TOKEN" CLOUDFLARE_ACCOUNT_ID="$ACCOUNT"
           npx --yes wrangler@4 deploy 2>&1 | tee deploy.log
           URL=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' deploy.log | head -1)
+          if [ -z "$URL" ]; then
+            echo "::error::Déploiement terminé mais adresse du serveur introuvable dans la sortie de wrangler."
+            exit 1
+          fi
           echo "### Serveur de notifications déployé" >> "$GITHUB_STEP_SUMMARY"
-          echo "Adresse : \`${URL:-introuvable dans le journal}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "Adresse : \`$URL\`" >> "$GITHUB_STEP_SUMMARY"
           echo "PUSH_API=$URL"
