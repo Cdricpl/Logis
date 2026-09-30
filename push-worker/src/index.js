@@ -47,6 +47,7 @@ export class PushStore extends DurableObject {
       ...record,
       lastSent: existing ? existing.lastSent : null,
       lastTest: existing ? existing.lastTest : 0,
+      lastResult: existing ? existing.lastResult : null,
     });
     return true;
   }
@@ -72,7 +73,29 @@ export class PushStore extends DurableObject {
     if (Date.now() - (rec.lastTest || 0) < TEST_COOLDOWN_MS) return 'too-soon';
     rec.lastTest = Date.now();
     await this.ctx.storage.put(id, rec);
-    return this.send(id, rec);
+    const r = await this.send(id, rec);
+    await this.noteResult(id, r);
+    return r;
+  }
+
+  // Garde le résultat du dernier envoi (test ou rappel) : c'est ce qui permet à
+  // l'appli d'expliquer POURQUOI une notification n'est pas arrivée.
+  async noteResult(id, result) {
+    const rec = await this.ctx.storage.get(id);
+    if (!rec) return; // abonnement supprimé (410) : rien à annoter
+    rec.lastResult = { at: Date.now(), result };
+    await this.ctx.storage.put(id, rec);
+  }
+
+  async status(endpoint) {
+    const rec = await this.ctx.storage.get(await endpointId(endpoint));
+    if (!rec) return { known: false };
+    const s = rec.schedule || {};
+    return {
+      known: true, hour: rec.hour, tz: rec.tz || null, lastSent: rec.lastSent || null,
+      lastResult: rec.lastResult || null, overdueFrom: s.overdueFrom || null,
+      reminderDays: Array.isArray(s.dates) ? s.dates.length : 0, serverTime: Date.now(),
+    };
   }
 
   async send(id, rec) {
@@ -106,8 +129,9 @@ export class PushStore extends DurableObject {
     for (const [id, rec] of subs) {
       if (!isDue(rec, now)) continue;
       const r = await this.send(id, rec);
-      if (r === 'sent') {
-        rec.lastSent = localParts(now, rec.tz, rec.utcOffsetMinutes).date;
+      if (r === 'sent') rec.lastSent = localParts(now, rec.tz, rec.utcOffsetMinutes).date;
+      if (r !== 'gone') {
+        rec.lastResult = { at: Date.now(), result: r };
         await this.ctx.storage.put(id, rec);
       }
       results.push(r);
@@ -164,6 +188,9 @@ export default {
         if (!body.oldEndpoint || !isAllowedEndpoint(next)) return json({ error: 'endpoint' }, 400);
         return json({ ok: await store(env).move(body.oldEndpoint, next) });
       }
+      case '/status':
+        if (!endpoint || !isAllowedEndpoint(endpoint)) return json({ error: 'endpoint' }, 400);
+        return json(await store(env).status(endpoint));
       case '/unsubscribe':
         if (!endpoint) return json({ error: 'endpoint' }, 400);
         await store(env).remove(endpoint);
