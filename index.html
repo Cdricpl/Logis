@@ -2308,6 +2308,20 @@ em, .modal h2 em, .modal h3 em { font-style: normal; color: inherit; }
 :root[data-theme="dark"] .brand-text .brand-sub .app-version { color: var(--text-2); }
 :root[data-theme="dark"] body[data-tab="tasks"] .brand-text .brand-sub .app-version { color: rgba(255, 255, 255, 0.88); }
 :root[data-theme="dark"] .stats .stat .val.has-value { color: var(--text); }
+
+/* ---------- Diagnostic des rappels ---------- */
+.push-diag { margin: 0 0 6px; padding: 12px 14px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); font-size: 13px; }
+.push-diag .pd-wait { color: var(--text-2); }
+.push-diag .pd-head { font-weight: 600; line-height: 1.4; }
+.push-diag .pd-good { color: var(--ok); }
+.push-diag .pd-bad { color: var(--danger); }
+.push-diag details { margin-top: 8px; }
+.push-diag summary { cursor: pointer; color: var(--text-2); font-size: 12.5px; padding: 6px 0; }
+.push-diag .pd-list { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.push-diag .pd-list li { display: grid; grid-template-columns: 16px 1fr; column-gap: 8px; color: var(--text); line-height: 1.35; }
+.push-diag .pd-list li b { grid-row: span 2; }
+.push-diag .pd-list li small { grid-column: 2; font-size: 12px; color: var(--text-2); }
+.push-diag .pd-list li.pd-bad small { color: var(--danger); }
 </style>
 
 </head>
@@ -2573,7 +2587,7 @@ em, .modal h2 em, .modal h3 em { font-style: normal; color: inherit; }
 // fichier sw.js sur un serveur — ce qui n'est pas possible avec un fichier HTML local.
 
 (function() {
-  const APP_VERSION = 'v28';
+  const APP_VERSION = 'v29';
   // v27 : adresse du serveur de notifications (push-worker/, déployé sur
   // Cloudflare). Vide tant qu'il n'est pas déployé : l'appli le dit alors
   // honnêtement, au lieu de promettre des rappels qui n'arriveront pas.
@@ -4655,10 +4669,23 @@ em, .modal h2 em, .modal h3 em { font-style: normal; color: inherit; }
     return !!PUSH_API && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
   }
 
+  // Une requête ou un service worker qui ne répond pas ne doit jamais rester
+  // muet : sans délai, l'activation des rappels pouvait « réussir » sans rien dire.
+  function withTimeout(promise, ms, what) {
+    let t;
+    const limit = new Promise((_, rej) => { t = setTimeout(() => rej(new Error(what + ' : pas de réponse')), ms); });
+    return Promise.race([promise, limit]).finally(() => clearTimeout(t));
+  }
+
+  const PUSH_LAST_KEY = 'logis_push_last';
+  function notePushResult(ok, reason) {
+    try { localStorage.setItem(PUSH_LAST_KEY, JSON.stringify({ at: Date.now(), ok, reason: reason || '' })); } catch(e) {}
+  }
+
   async function pushPost(path, payload) {
-    const res = await fetch(PUSH_API + path, {
+    const res = await withTimeout(fetch(PUSH_API + path, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
-    });
+    }), 12000, 'serveur de notifications');
     let data = null;
     try { data = await res.json(); } catch(e) {}
     return { ok: res.ok, status: res.status, data };
@@ -4672,12 +4699,25 @@ em, .modal h2 em, .modal h3 em { font-style: normal; color: inherit; }
   // Abonne le téléphone si besoin, puis envoie heure, fuseau et calendrier.
   // Appelée à l'activation, à chaque ouverture et après chaque modification.
   async function pushSync() {
-    if (!pushSupported() || Notification.permission !== 'granted') return { ok: false, reason: 'non pris en charge' };
+    try {
+      const r = await pushSyncInner();
+      notePushResult(r.ok, r.reason);
+      return r;
+    } catch (e) {
+      notePushResult(false, (e && e.message) || 'erreur');
+      throw e;
+    }
+  }
+  async function pushSyncInner() {
+    if (!pushSupported()) return { ok: false, reason: 'non pris en charge sur cet appareil' };
+    if (Notification.permission !== 'granted') return { ok: false, reason: 'autorisation refusée dans les réglages du téléphone' };
     const prefs = getNotifPrefs();
-    if (!prefs.enabled) return { ok: false, reason: 'désactivé' };
-    const { publicKey } = await (await fetch(PUSH_API + '/vapid-key')).json();
+    if (!prefs.enabled) return { ok: false, reason: 'rappels désactivés' };
+    const keyRes = await withTimeout(fetch(PUSH_API + '/vapid-key'), 12000, 'serveur de notifications');
+    if (!keyRes.ok) throw new Error('serveur de notifications : erreur ' + keyRes.status);
+    const { publicKey } = await keyRes.json();
     const appKey = b64urlBytes(publicKey);
-    const reg = await navigator.serviceWorker.ready;
+    const reg = await withTimeout(navigator.serviceWorker.ready, 10000, 'service worker');
     let sub = await reg.pushManager.getSubscription();
     // Un abonnement signé pour une autre clé serait refusé à chaque envoi.
     const current = sub && sub.options && sub.options.applicationServerKey;
@@ -4685,7 +4725,7 @@ em, .modal h2 em, .modal h3 em { font-style: normal; color: inherit; }
       await sub.unsubscribe().catch(() => {});
       sub = null;
     }
-    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey });
+    if (!sub) sub = await withTimeout(reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: appKey }), 15000, 'abonnement du téléphone');
     let tz = '';
     try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e) {}
     const res = await pushPost('/subscribe', {
@@ -4693,6 +4733,53 @@ em, .modal h2 em, .modal h3 em { font-style: normal; color: inherit; }
       utcOffsetMinutes: -new Date().getTimezoneOffset(), schedule: computePushSchedule()
     });
     return { ok: res.ok, reason: res.ok ? '' : ((res.data && res.data.error) || 'erreur ' + res.status), endpoint: sub.endpoint };
+  }
+
+  // État réel des rappels, étape par étape, affiché dans la fenêtre des rappels.
+  // Chaque ligne dit si l'étape est en place ; la première qui manque explique
+  // pourquoi aucune notification n'arrive.
+  async function pushDiagnostic() {
+    const rows = [];
+    const add = (ok, label, detail) => rows.push({ ok, label, detail: detail || '' });
+    const perm = ('Notification' in window) ? Notification.permission : 'absent';
+    add(perm === 'granted', 'Autorisation du téléphone',
+      perm === 'granted' ? 'accordée' : perm === 'denied' ? 'REFUSÉE — à rétablir dans les réglages du téléphone (Applis → Logis → Notifications)' : perm === 'absent' ? 'ce navigateur ne gère pas les notifications' : 'pas encore demandée');
+    if (isMobileDevice()) add(isStandalonePWA(), 'Appli installée', isStandalonePWA() ? 'oui' : 'NON — ouvre Logis depuis son icône sur l\'écran d\'accueil');
+    if (!PUSH_API) { add(false, 'Serveur de notifications', 'non configuré'); return rows; }
+    let reg = null, sub = null;
+    try { reg = await withTimeout(navigator.serviceWorker.getRegistration(), 4000, 'service worker'); } catch(e) {}
+    add(!!(reg && reg.active), 'Service worker', reg && reg.active ? reg.active.scriptURL.split('/').pop() + ' (actif)' : 'ABSENT — recharge Logis puis réessaie');
+    try { sub = reg ? await reg.pushManager.getSubscription() : null; } catch(e) {}
+    add(!!sub, 'Abonnement du téléphone', sub ? 'créé (' + new URL(sub.endpoint).hostname + ')' : 'AUCUN — désactive puis réactive les rappels');
+    try {
+      const r = sub ? await pushPost('/status', { endpoint: sub.endpoint }) : null;
+      if (!sub) add(null, 'Serveur de notifications', 'non testé (pas d\'abonnement)');
+      else if (!r.ok) add(false, 'Serveur de notifications', 'erreur ' + r.status);
+      else if (!r.data.known) add(false, 'Serveur de notifications', 'ne connaît PAS ce téléphone — désactive puis réactive les rappels');
+      else {
+        add(true, 'Serveur de notifications', 'connaît ce téléphone (rappels à ' + String(r.data.hour).padStart(2, '0') + ' h)');
+        const lr = r.data.lastResult;
+        if (lr) add(lr.result === 'sent', 'Dernier envoi', (lr.result === 'sent' ? 'accepté par Google' : 'ÉCHEC : ' + lr.result) + ' — ' + new Date(lr.at).toLocaleString('fr-BE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }));
+        else add(null, 'Dernier envoi', 'aucun pour l\'instant');
+      }
+    } catch(e) { add(false, 'Serveur de notifications', 'injoignable (' + ((e && e.message) || 'erreur') + ')'); }
+    try {
+      const last = JSON.parse(localStorage.getItem(PUSH_LAST_KEY));
+      if (last && !last.ok) add(false, 'Dernière activation', last.reason + ' — ' + new Date(last.at).toLocaleString('fr-BE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }));
+    } catch(e) {}
+    return rows;
+  }
+
+  function renderPushDiagnostic(rows) {
+    const box = document.getElementById('push-diag');
+    if (!box) return;
+    const bad = rows.find(r => r.ok === false);
+    const sym = r => r.ok === true ? '✓' : r.ok === false ? '✗' : '–';
+    box.innerHTML =
+      '<div class="pd-head ' + (bad ? 'pd-bad' : 'pd-good') + '">' + (bad ? '✗ ' + escapeHtml(bad.label) + ' : ' + escapeHtml(bad.detail) : '✓ Tout est en place') + '</div>' +
+      '<details' + (bad ? ' open' : '') + '><summary>Détails du diagnostic</summary><ul class="pd-list">' +
+        rows.map(r => '<li class="' + (r.ok === false ? 'pd-bad' : r.ok === true ? 'pd-good' : '') + '"><b>' + sym(r) + '</b> <span>' + escapeHtml(r.label) + '</span> <small>' + escapeHtml(r.detail) + '</small></li>').join('') +
+      '</ul></details>';
   }
 
   async function pushDisable() {
@@ -4778,12 +4865,14 @@ em, .modal h2 em, .modal h3 em { font-style: normal; color: inherit; }
         (pushSupported()
           ? '💡 Les rappels arrivent même quand l\'app est fermée. Une notification de test est envoyée à l\'activation.'
           : '💡 Sur cet appareil, les rappels ne s\'affichent que lorsque Logis est ouverte.') +
+      (pushSupported() ? '</div><div id="push-diag" class="push-diag"><span class="pd-wait">Vérification de l\'état des rappels…</span>' : '') +
       '</div>' +
       '<div class="btn-row">' +
         '<button class="btn btn-sm" data-m="close">Annuler</button>' +
         '<button class="btn btn-sm btn-primary" id="notif-save-btn">Enregistrer</button>' +
       '</div>'
     );
+    if (pushSupported()) pushDiagnostic().then(renderPushDiagnostic).catch(() => {});
     const saveBtn = document.getElementById('notif-save-btn');
     if (saveBtn) saveBtn.addEventListener('click', async () => {
       const enabled = document.getElementById('notif-toggle-chk').checked;
